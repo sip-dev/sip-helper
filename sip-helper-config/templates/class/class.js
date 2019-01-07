@@ -6,6 +6,6 @@
  *  $helper: 为render-helper.js定义内容
  * 
  */
-SipRender.extend(function($template, $helper){
+SipRender.extend(function ($template, $helper) {
 
 });

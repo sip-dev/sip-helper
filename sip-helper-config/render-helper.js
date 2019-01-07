@@ -2,7 +2,7 @@
 
 /** 定义helper */
 var _helper = {
-    log:function(){
+    log: function () {
         return RenderHelper.log.apply(RenderHelper, arguments);
     },
     /** 大驼峰转换：sip-user_list.component ===> SipUserListComponent */
