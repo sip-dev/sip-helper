@@ -37,6 +37,8 @@ interface SipRenderTemplateItem {
     "path": string;
     /** 模板位置, 可以使用render */
     "templateFile": string;
+    /** 模板扩展位置, 可以使用render */
+    "templateExtend": string;
 }
 
 interface SipRenderExtendTemplate {

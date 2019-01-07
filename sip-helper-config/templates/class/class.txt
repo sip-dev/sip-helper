@@ -1,0 +1,6 @@
+
+class @{className} {
+
+    private @{input}:string;
+
+}
