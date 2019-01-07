@@ -68,10 +68,45 @@ export function activate(context: ExtensionContext) {
         if (!fs.existsSync(pathParent)) mkdirSync(pathParent);
         fs.mkdirSync(fsPath);
     };
+
+    let _sipConfigPath = './sip-helper-config';
+    let _getConfigPath = (joinPath?: string) => {
+        let fsPath = path.join(_getRootPath(), _sipConfigPath);
+        return joinPath ? path.join(fsPath, joinPath) : fsPath;
+    };
+    let _getTemplatePath = (joinPath?: string) => {
+        let fsPath = _getConfigPath('templates');
+        return joinPath ? path.join(fsPath, joinPath) : fsPath;
+    };
+    let _getTemplateIndexPath = (tmpl?: string) => {
+        let fsPath = _getTemplatePath([tmpl, 'index.js'].join('/'));
+        return fsPath;
+    };
+    let _getHelper = () => {
+        let fsPath = _getConfigPath('render-helper.js');
+        return (!fs.existsSync(fsPath)) ? '' : fs.readFileSync(fsPath, 'utf-8');
+    };
+    let _getTemplates = (): string[] => {
+        let fsPath = _getTemplatePath();
+        let templates = [];
+        if (fs.existsSync(fsPath)) {
+            let fileList = fs.readdirSync(fsPath, 'utf-8');
+            if (fileList) {
+                fileList.forEach(function (item: string) {
+                    if (fs.existsSync(_getTemplateIndexPath(item))) {
+                        let info = fs.statSync(_getTemplatePath(item));
+                        if (info.isDirectory()) templates.push(item);
+                    }
+                });
+            }
+        }
+
+        return templates;
+
+    };
     context.subscriptions.push(commands.registerCommand('siphelper.sipgenerate', (args) => {
         _preDoneRegisterCommand(args);
-        let config = getConfig();
-        let picks = config.templates.map(tmpl => tmpl.title);
+        let picks = _getTemplates();
         window.showQuickPick(picks).then(tmpl => {
             if (!tmpl) return;
             window.showInputBox({
@@ -687,20 +722,25 @@ ${props.join('\n')}
             switch (cmd) {
                 case 'options':
                     let input = isDir ? fileName : fileName.split('.')[0];
+                    let tmplName = generateOpt ? generateOpt.tmpl : '';
+                    let tmplPath = tmplName ? _getTemplatePath(tmplName) : '';
+                    let indexContent = tmplName ? fs.readFileSync(_getTemplateIndexPath(tmplName), 'utf-8') : '';
                     let opt = {
                         curPath: curPath,
                         curFile: curFile,
                         isDir: isDir,
                         isLinux: isLinux,
                         input: input,
-                        tmplName: generateOpt ? generateOpt.tmpl : '',
+                        tmplName: tmplName,
+                        tmplPath: tmplPath,
+                        tmplIndex: indexContent,
                         prefix: 'app',
                         fileName: isDir ? '' : fileName,
                         workspaceRoot: workspaceRoot,
                         extensionPath: context.extensionPath,
                         modules: FindUpwardModuleFiles(workspaceRoot, inputFile).map(file => ['@{curPath}', path.relative(curPath, file)].join(isLinux ? "/" : "\\")),
                         generate: generateOpt,
-                        helper: getHelper()
+                        helper: _getHelper()
                     };
                     receiveMsg(id, cmd, opt);
                     break;
@@ -778,6 +818,7 @@ ${props.join('\n')}
                 case 'importToRouting':
                     break;
                 case 'log':
+                    console.log(data)
                     receiveMsg(id, cmd);
                     break;
                 case 'close':

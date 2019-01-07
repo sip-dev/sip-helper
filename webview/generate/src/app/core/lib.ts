@@ -56,12 +56,10 @@ export function CloneFile(file: IFileItem): IFileItem {
     return fileTemp;
 };
 
-export function JoinPath(path: string, fileName: string): string {
-    return [path.trim(), fileName.trim()].join(_pathSplice).replace(/[\\\/]{1,}/g, _pathSplice).replace(/^[\/\\]/, '');
+export function JoinPath(path: string, fileName: string, isLinux?: boolean): string {
+    let pathSplice = isLinux !== false ? '/' : '\\';
+    return [path.trim(), fileName.trim()].join(pathSplice).replace(/[\\\/]{1,}/g, pathSplice).replace(/^[\/\\]/, '');
 }
-
-let _pathSplice = '/';
-
 
 export function GetDefaultTmpl(): ITmplItem {
     return { title: '', active: false, files: [] };
@@ -105,6 +103,6 @@ export const DEFAULT_TMPLS: ITmplItem[] = [{
             }
         }
     ],
-    "inputs":[],
+    "inputs": [],
     "title": "class"
 }];

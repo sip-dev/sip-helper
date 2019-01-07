@@ -72,6 +72,7 @@ export class VscodeMessageService {
                 input: 'demo',
                 prefix: 'app',
                 fileName: '',
+                tmplName:'',
                 workspaceRoot: 'd:\\root',
                 extensionPath: 'd:\\temp\\extension',
                 modules: []
@@ -97,34 +98,54 @@ export class VscodeMessageService {
 `
             }
             options.modules = options.modules.slice();
-            this.readConfig().subscribe((readConfig) => {
-                let config: IConfig = readConfig ? JSON.parse(readConfig) : null;
-                this.config = config;
-                if (config) {
-                    options.prefix = config.prefix;
-                }
-
-                let helper: any = {};
-                if (options.helper) {
-                    (new Function('RenderHelper', options.helper))({
-                        extend: function (obj: any) {
-                            helper = obj;
-                        },
-                        log(...args: string[]) {
-                            return SipRenderFile.log(...args);
-                        }
-                    });
-                }
-                SipRenderFile.helper = helper;
-
-                let _extendField = ['curPath', 'curFile', 'isDir', 'input', 'prefix', 'tmplName', 'workspaceRoot'];
-                let renderExtend = SipRenderFile.extend;
-                _extendField.forEach(function (key) {
-                    renderExtend[key] = options[key];
+            
+            let helper: any = {};
+            if (options.helper) {
+                (new Function('RenderHelper', options.helper))({
+                    extend: function (obj: any) {
+                        helper = obj;
+                    },
+                    log(...args: string[]) {
+                        return SipRenderFile.log(...args);
+                    }
                 });
-                callback();
-
+            }
+            SipRenderFile.helper = helper;
+            
+            let _extendField = ['curPath', 'curFile', 'isDir', 'input', 'isLinux', 'tmplName', 'workspaceRoot'];
+            let renderExtend = SipRenderFile.extend;
+            _extendField.forEach(function (key) {
+                renderExtend[key] = options[key];
             });
+            callback();
+            // this.readConfig().subscribe((readConfig) => {
+            //     let config: IConfig = readConfig ? JSON.parse(readConfig) : null;
+            //     this.config = config;
+            //     if (config) {
+            //         options.prefix = config.prefix;
+            //     }
+
+            //     let helper: any = {};
+            //     if (options.helper) {
+            //         (new Function('RenderHelper', options.helper))({
+            //             extend: function (obj: any) {
+            //                 helper = obj;
+            //             },
+            //             log(...args: string[]) {
+            //                 return SipRenderFile.log(...args);
+            //             }
+            //         });
+            //     }
+            //     SipRenderFile.helper = helper;
+                
+            //     let _extendField = ['curPath', 'curFile', 'isDir', 'input', 'isLinux', 'tmplName', 'workspaceRoot'];
+            //     let renderExtend = SipRenderFile.extend;
+            //     _extendField.forEach(function (key) {
+            //         renderExtend[key] = options[key];
+            //     });
+            //     callback();
+
+            // });
         });
     }
 

@@ -35,15 +35,17 @@ interface SipRenderTemplateItem {
     "extend": string;
     /** 生成文件所在路径, 可以使用render */
     "path": string;
-    /** 模板位置, 可以使用render */
+    /** 模板位置 */
     "templateFile": string;
-    /** 模板扩展位置, 可以使用render */
+    /** 模板扩展位置 */
     "templateExtend": string;
 }
 
 interface SipRenderExtendTemplate {
     /** 输入input */
     'input': string;
+    /** 模板名称 */
+    'tmplName': string;
     /** 是否目录 */
     'isDir': boolean;
     /** 是否linux */

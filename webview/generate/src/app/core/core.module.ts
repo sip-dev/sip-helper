@@ -1,7 +1,6 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GenerateService } from './services/generate.service';
-import { GenerateTmplService } from './services/generate-tmpl.service';
+import { NgModule } from '@angular/core';
+import { GenerateLogService } from './services/generate-log.service';
 import { VscodeMessageService } from './services/vscode-message.service';
 
 @NgModule({
@@ -10,8 +9,7 @@ import { VscodeMessageService } from './services/vscode-message.service';
     ],
     declarations: [],
     providers: [
-        GenerateService,
-        GenerateTmplService,
+        GenerateLogService,
         VscodeMessageService
     ],
     exports:[],

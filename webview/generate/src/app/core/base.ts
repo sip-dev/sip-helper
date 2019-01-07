@@ -45,7 +45,9 @@ export interface IVscodeOption {
     isDir?: boolean;
     isLinux?: boolean;
     input?: string;
-    tmplName?:string;
+    tmplName?: string;
+    tmplPath?: string;
+    tmplIndex?: string;
     prefix?: string;
     fileName?: string;
     workspaceRoot?: string;
@@ -78,11 +80,54 @@ export interface ITmplItem {
     index?: number;
     active?: boolean;
     files: IFileItem[];
-    inputs?:InputItem[];
+    inputs?: InputItem[];
 }
 
 /** 保存模板配置 */
 export interface IConfig {
     prefix?: string;
     templates?: ITmplItem[];
+}
+
+
+
+export interface SipRenderInputItem {
+    /** 变量名 */
+    name: string;
+    /** 显示标题 */
+    title?: string;
+    /** 默认值 */
+    defaultValue?: any;
+    /** 描述 */
+    desc?: string;
+    /** 只读 */
+    readonly?: boolean;
+    /** 数据源，格式：[{value:'', text:''}]，如:select时用 */
+    source?: any;
+    /** 输入UI类型 */
+    uiType?: 'input' | 'textarea' | 'select';
+}
+
+export interface SipRenderTemplateItem {
+    /** 是否目录 */
+    "isDir": boolean;
+    /** 目录时无效, 可以使用render */
+    "fileName": string;
+    /** 扩展名称, 可以使用render */
+    "extend": string;
+    /** 生成文件所在路径, 可以使用render */
+    "path": string;
+    /** 模板位置 */
+    "templateFile": string;
+    /** 模板扩展位置 */
+    "templateExtend": string;
+    content?:string;
+    script?:string;
+}
+
+export interface SipRenderOut {
+    fileName: string;
+    content?: string;
+    dir: boolean;
+    logs: string[];
 }

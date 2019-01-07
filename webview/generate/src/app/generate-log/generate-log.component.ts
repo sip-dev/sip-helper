@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IVscodeOption } from '../core/base';
-import { GenerateTmplService } from '../core/services/generate-tmpl.service';
-import { GenerateService } from '../core/services/generate.service';
+import { GenerateLogService } from '../core/services/generate-log.service';
 import { VscodeMessageService } from '../core/services/vscode-message.service';
 
 @Component({
@@ -10,18 +9,12 @@ import { VscodeMessageService } from '../core/services/vscode-message.service';
 })
 export class GenerateLogComponent implements OnInit, OnDestroy {
 
-  constructor(public genSrv: GenerateService, private _vsMsg: VscodeMessageService,
-    private _genTmplSrv: GenerateTmplService) {
+  constructor(private _vsMsg: VscodeMessageService,
+    private genSrv:GenerateLogService) {
     this.vscodeOptions = _vsMsg.options;
     let generateOpt = this.vscodeOptions.generate;
     if (generateOpt) {
       this._vsMsg.input = generateOpt.input || 'demo';
-      let title = generateOpt.tmpl;
-      let tmpl = this._genTmplSrv.getTmpl(title);
-      if (tmpl) {
-        this.genSrv.addFileFromTmpl(tmpl);
-        this.genSrv.generate();
-      }
       document.addEventListener('keydown', this.keydown);
     }
   }
