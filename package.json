@@ -1,0 +1,124 @@
+{
+  "name": "siphelper",
+  "displayName": "sip-helper",
+  "description": "Run sip-helper from vscode commandline.",
+  "icon": "images/logo.png",
+  "version": "1.0.0",
+  "publisher": "winpzs",
+  "bugs": {
+    "url": "https://github.com/sip-dev/sip-helper/issues",
+    "email": "winpzs@gmail.com"
+  },
+  "homepage": "https://github.com/sip-dev/sip-helper/blob/master/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sip-dev/sip-helper.git"
+  },
+  "categories": [
+    "Other"
+  ],
+  "engines": {
+    "vscode": "^1.23.0"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "keywords": [
+    "Vue",
+    "Vue 2",
+    "sip",
+    "TypeScript"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "siphelper.tosnippettext",
+        "title": "To Snippet Text"
+      },
+      {
+        "command": "siphelper.quickpicks",
+        "title": "sip-helper"
+      },
+      {
+        "command": "siphelper.region",
+        "title": "Region Block"
+      },
+      {
+        "command": "siphelper.sipgenerate",
+        "title": "sip-generate"
+      },
+      {
+        "command": "siphelper.component.switchfile",
+        "title": "sip-switchfile"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "siphelper.quickpicks",
+        "key": "ctrl+k ctrl+h",
+        "mac": "cmd+k cmd+h"
+      },
+      {
+        "command": "siphelper.sipgenerate",
+        "key": "ctrl+k ctrl+g",
+        "mac": "cmd+k cmd+g"
+      },
+      {
+        "command": "siphelper.component.switchfile",
+        "key": "ctrl+k ctrl+k",
+        "mac": "cmd+k cmd+k",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "",
+          "command": "siphelper.sipgenerate",
+          "group": "sip-helper"
+        },
+        {
+          "when": "",
+          "command": "siphelper.quickpicks",
+          "group": "sip-helper"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "",
+          "command": "siphelper.sipgenerate",
+          "group": "sip-helper"
+        },
+        {
+          "when": "",
+          "command": "siphelper.quickpicks",
+          "group": "sip-helper"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "ngbuild": "cd ./webview/generate && npm run build && cd ../..",
+    "nginstall": "cd ./webview/generate && npm i",
+    "vscode:prepublish": "npm run ngbuild && tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install && npm run nginstall",
+    "vscode:package": "vsce package",
+    "vscode:publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.0.0",
+    "@types/node": "^8.0.0",
+    "mocha": "^4.0.0",
+    "run-in-terminal": "^0.0.3",
+    "rxjs": "^5.0.3",
+    "typescript": "^2.8.3",
+    "vscode": "^1.1.17"
+  },
+  "dependencies": {
+    "json-stable-stringify": "^1.0.1",
+    "jsonic": "^0.3.0",
+    "yargs-parser": "^8.1.0"
+  }
+}
