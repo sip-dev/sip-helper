@@ -2,7 +2,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { commands, ExtensionContext, Position, Range, Terminal, TextDocument, Uri, ViewColumn, window, workspace } from 'vscode';
-import { CalcImportPath, CalcPath, FindModuleFile, FindPathUpward, FindUpwardModuleFiles, IsDirectory, MakeClassName, PushToImport, PushToModuleDeclarations, PushToModuleEntryComponents, PushToModuleExports, PushToModuleImports, PushToModuleProviders, PushToModuleRouting } from './contents/content-base';
+import { CalcPath, FindModuleFile, FindPathUpward, FindUpwardModuleFiles, IsDirectory, MakeClassName } from './contents/content-base';
 import { Lib } from './lib';
 
 let argv = require('yargs-parser');
@@ -94,8 +94,30 @@ export function activate(context: ExtensionContext) {
         }
 
         return templates;
-
     };
+    function copyDir(fromDir, toDir) {
+        if (!fs.existsSync(toDir)) mkdirSync(toDir);
+        fs.readdirSync(fromDir).forEach(function (file) {
+          var pathname = path.join(fromDir, file);
+          var toPathname = path.join(toDir, file);
+       
+          if (fs.statSync(pathname).isDirectory()) {
+            copyDir(pathname, toDir);
+          } else {
+            fs.writeFileSync(pathname, fs.readdirSync(toPathname));
+          }
+        });
+      }
+      
+    let _initConfigPath = ()=>{
+        let fsPath = _getConfigPath();
+        if (!fs.existsSync(fsPath)){
+            let fromPath = path.join(context.extensionPath, _sipConfigPath);
+            copyDir(fromPath, fsPath);
+        }
+        
+    };
+
     context.subscriptions.push(commands.registerCommand('siphelper.sipgenerate', (args) => {
         _preDoneRegisterCommand(args);
         let picks = _getTemplates();
@@ -132,50 +154,6 @@ export function activate(context: ExtensionContext) {
             });
         }
     }));
-
-    let regModule = (file: string, moduleFile: string, className: string, regOpt: {
-        moduleExport?: boolean;
-        moduleImport?: boolean;
-        moduleDeclaration?: boolean;
-        moduleEntryComponent?: boolean;
-        moduleProvider?: boolean;
-        moduleRouting?: boolean;
-        routePath: string;
-        isModule?: boolean;
-    }): boolean => {
-        let workspaceRoot = _getRootPath();
-        let regFile: string = file;
-        let regFilePath: string = path.dirname(regFile);
-        let regModuleFile: string = moduleFile;
-        let regImportFile: string = CalcImportPath(regModuleFile, regFile);
-        let regClassName = className;
-
-        if (fs.existsSync(regFile) && fs.existsSync(regModuleFile)) {
-            let regContent = fs.readFileSync(regModuleFile, 'utf-8');
-            regContent = PushToImport(regContent, regClassName, regImportFile);
-            if (regOpt.moduleImport) {
-                regContent = PushToModuleImports(regContent, regClassName);
-            }
-            if (regOpt.moduleProvider) {
-                regContent = PushToModuleProviders(regContent, regClassName);
-            }
-            if (regOpt.moduleDeclaration) {
-                regContent = PushToModuleDeclarations(regContent, regClassName);
-            }
-            if (regOpt.moduleExport) {
-                regContent = PushToModuleExports(regContent, regClassName);
-            }
-            if (regOpt.moduleEntryComponent) {
-                regContent = PushToModuleEntryComponents(regContent, regClassName);
-            }
-            if (regOpt.moduleRouting) {
-                regContent = PushToModuleRouting(regContent, regOpt.routePath || '', regClassName, regImportFile, regOpt.isModule);
-            }
-            fs.writeFileSync(regModuleFile, regContent, 'utf-8');
-            return true;
-        } else
-            return false;
-    };
 
     let _fileName = '', _curFile = '';
     context.subscriptions.push(commands.registerCommand('siphelper.quickpicks', (args) => {
@@ -248,6 +226,7 @@ export function activate(context: ExtensionContext) {
                 commands.executeCommand('siphelper.region', args);
                 break;
             case 'sip-generate':
+                _initConfigPath();
                 commands.executeCommand('siphelper.sipgenerate', args);
                 break;
         }
@@ -630,7 +609,7 @@ ${props.join('\n')}
                     panel.dispose();
                     break;
                 case 'openFile':
-                    _openFile( data.fullPath ? data.fullPath : path.join(data.basePath || curPath, data.file));
+                    _openFile(data.fullPath ? data.fullPath : path.join(data.basePath || curPath, data.file));
                     break;
             }
             // console.log(cmd, data);
