@@ -3,9 +3,19 @@
 interface IRenderHelper {
     /** 是否debug模式 */
     debug: boolean;
-    extend: (obj) => void;
+    /** $helper */
+    extend: (helper) => void;
+    /**
+     * log信息
+     */
     log: (...args: string[]) => string;
+    /**
+     * log warning信息
+     */
     warning: (...args: string[]) => string;
+    /**
+     * log error信息
+     */
     error: (...args: string[]) => string;
 }
 
@@ -45,7 +55,8 @@ interface SipRenderTemplateItem {
     "templateExtend": string;
 }
 
-interface SipRenderExtendTemplate {
+/** $data 内置数据 */
+interface SipRenderExtendData {
     /** 输入input */
     'input': string;
     /** 模板名称 */
@@ -70,11 +81,29 @@ interface SipRenderExtendTemplate {
 }
 
 interface ISipRender {
+    /**
+     * 设置生成时UI输入
+     */
     inputs: (options: SipRenderInputItem[]) => void;
+    /**
+     * 设置模板内容
+     */
     templates: (templates: SipRenderTemplateItem[]) => void;
-    extend: (extend: ($data: SipRenderExtendTemplate, $helper: any) => void) => void;
+    /**
+     * 扩展 $data
+     */
+    extend: (extend: ($data: SipRenderExtendData, $helper: any) => void) => void;
+    /**
+     * log信息
+     */
     log: (...args: string[]) => string;
+    /**
+     * log warning信息
+     */
     warning: (...args: string[]) => string;
+    /**
+     * log error信息
+     */
     error: (...args: string[]) => string;
 }
 
