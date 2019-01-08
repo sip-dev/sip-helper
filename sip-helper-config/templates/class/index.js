@@ -10,7 +10,7 @@ SipRender.forms([
         defaultValue: '@{input}-input',
         source: null,
         style: null,
-        desc: ''
+        desc: 'text-desc'
     },
     {
         name: 'select1',
@@ -19,7 +19,7 @@ SipRender.forms([
         defaultValue: '1',
         source: [{ value: '1', text: '1111' }, { value: '2', text: "2222" }],
         style: null,
-        desc: ''
+        desc: 'select-desc'
     },
     {
         name: 'textarea1',

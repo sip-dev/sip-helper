@@ -11,17 +11,20 @@
                             <label class="col-form-label">{{formItem.title}}：</label>
                             <input type="input" class="form-control" name="{{formItem.name}}" [(ngModel)]="formItem.defaultValue"
                                 [ngModelOptions]="{updateOn: 'blur'}">
+                                <small *ngIf="!!formItem.desc" class="form-text text-muted">{{formItem.desc}}</small>
                         </div>
                         <div class="form-group" *ngIf="formItem.uiType == 'select'">
                             <label class="col-form-label">{{formItem.title}}：</label>
                             <select class="form-control form-control-sm" name="{{formItem.name}}" [(ngModel)]="formItem.defaultValue">
                                 <option *ngFor="let item of formItem.source" value="{{item.value}}">{{item.text}}</option>
                             </select>
+                            <small *ngIf="!!formItem.desc" class="form-text text-muted">{{formItem.desc}}</small>
                         </div>
                         <div class="form-group" *ngIf="formItem.uiType == 'textarea'">
                             <label class="col-form-label">{{formItem.title}}：</label>
                             <textarea class="form-control" rows="3" name="{{formItem.name}}" [(ngModel)]="formItem.defaultValue"
                                 [ngModelOptions]="{updateOn: 'blur'}"></textarea>
+                            <small *ngIf="!!formItem.desc" class="form-text text-muted">{{formItem.desc}}</small>
                         </div>
                     </div>
                     <div class="col-auto my-1" *ngIf="!isStart">

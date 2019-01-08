@@ -42,10 +42,11 @@ export const environment = {
             name: 'text1',
             title: 'text-title',
             uiType: 'input',
+            /** 只能使用 @{传入参数} 或 @{$form.name}(注意定义顺序) */
             defaultValue: '@{input}-input',
             source: null,
             style: null,
-            desc: ''
+            desc: 'text-desc'
         },
         {
             name: 'select1',
@@ -54,7 +55,7 @@ export const environment = {
             defaultValue: '1',
             source: [{ value: '1', text: '1111' }, { value: '2', text: "2222" }],
             style: null,
-            desc: ''
+            desc: 'select-desc'
         },
         {
             name: 'textarea1',
@@ -66,7 +67,7 @@ export const environment = {
             desc: ''
         }
     ]);
-        
+            
     /** 定义 render 模板 */
     SipRender.templates([
         {
