@@ -28,7 +28,7 @@ interface SipRenderFormItem {
     name: string;
     /** 显示标题 */
     title?: string;
-    /** 默认值 */
+    /** 默认值, 可以使用render，只能使用 @{传入参数} 或 @{$form.name}(注意定义顺序)*/
     defaultValue?: any;
     /** 描述 */
     desc?: string;
@@ -36,6 +36,7 @@ interface SipRenderFormItem {
     readonly?: boolean;
     /** 数据源，格式：[{value:'', text:''}]，如:select时用 */
     source?: any;
+    style?: any;
     /** 输入UI类型 */
     uiType?: 'input' | 'textarea' | 'select';
 }
@@ -43,11 +44,11 @@ interface SipRenderFormItem {
 interface SipRenderTemplateItem {
     /** 是否目录 */
     "isDir": boolean;
-    /** 目录时无效, 可以使用render */
+    /** 目录时无效, 可以使用render，(render顺序：fileName, extend, path) */
     "fileName": string;
-    /** 扩展名称, 可以使用render */
+    /** 扩展名称, 可以使用render，(render顺序：fileName, extend, path) */
     "extend": string;
-    /** 生成文件所在路径, 可以使用render */
+    /** 生成文件所在路径, 可以使用render，(render顺序：fileName, extend, path) */
     "path": string;
     /** 模板位置 */
     "templateFile": string;
@@ -92,7 +93,7 @@ interface ISipRender {
     /**
      * 扩展 $data
      */
-    extend: (extend: ($data: SipRenderExtendData, $helper: any, $form:any) => void) => void;
+    extend: (extend: ($data: SipRenderExtendData, $helper: any, $form: any) => void) => void;
     /**
      * log信息
      */

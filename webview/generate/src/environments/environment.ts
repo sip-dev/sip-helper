@@ -36,10 +36,37 @@ export const environment = {
     `,
     index: `/// <reference path="../../sip-helper.d.ts" />
 
-
-    /** 定义输入 */
-    SipRender.forms([]);
-    
+    /** 定义Form */
+    SipRender.forms([
+        {
+            name: 'text1',
+            title: 'text-title',
+            uiType: 'input',
+            defaultValue: '@{input}-input',
+            source: null,
+            style: null,
+            desc: ''
+        },
+        {
+            name: 'select1',
+            title: 'select-title',
+            uiType: 'select',
+            defaultValue: '1',
+            source: [{ value: '1', text: '1111' }, { value: '2', text: "2222" }],
+            style: null,
+            desc: ''
+        },
+        {
+            name: 'textarea1',
+            title: 'textarea-title',
+            uiType: 'textarea',
+            defaultValue: '@{input}-textarea',
+            source: null,
+            style: null,
+            desc: ''
+        }
+    ]);
+        
     /** 定义 render 模板 */
     SipRender.templates([
         {
@@ -65,9 +92,15 @@ export const environment = {
     });`,
     template: `
     class @{className} {
-    
-        hello = '@{hello}';
 
+        hello = '@{hello}';
+    
+        form = {
+            text:'@{$form.text1}',
+            select:'@{$form.select1}',
+            textarea:'@{$form.textarea1}'
+        };
+    
     }`,
     script: `/// <reference path="../../sip-helper.d.ts" />
 
@@ -78,7 +111,7 @@ export const environment = {
      *  $form：为UI输入内容，object
      */
     SipRender.extend(function ($data, $helper, $form) {
-        $data.hello = "hello world";
+        $data.hello = "hello world" + ' - ' + $form.text1;
     });`,
   }
 };

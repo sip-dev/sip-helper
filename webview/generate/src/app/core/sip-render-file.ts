@@ -1,4 +1,4 @@
-import { LogItem, LogStyle, SipRenderOut, SipRenderTemplateItem } from "./base";
+import { LogItem, LogStyle, SipRenderInputItem as SipRenderFormItem, SipRenderOut, SipRenderTemplateItem } from './base';
 import { JoinPath } from "./lib";
 import { SipRender } from "./sip-render";
 
@@ -37,6 +37,14 @@ function _makeTmplPropVar(data: any, form:any) {
     _tmplProps.forEach(function (item) {
         data[item] = _getVarIn(data, data[item], form);
     });
+}
+function _makeFormPropVar(data: any, forms: SipRenderFormItem[]) {
+    let form = {};
+    forms.forEach(function (item) {
+        let name = item.name;
+        form[name] = data[name] = _getVarIn(data, item.defaultValue, form);
+    });
+    return form;
 }
 let _logs: LogItem[] = [];
 
@@ -91,7 +99,7 @@ export class SipRenderFile {
     }
 
 
-    render(template: SipRenderTemplateItem, extendFn: (data: any, helper: any, form:any) => void, tmplName: string, input: string): SipRenderOut {
+    render(template: SipRenderTemplateItem, extendFn: (data: any, helper: any, form:any) => void, tmplName: string, input: string, forms:SipRenderFormItem[]): SipRenderOut {
         _logs = [];
 
         let isLinux = SipRenderFile.extend.isLinux;
@@ -99,7 +107,7 @@ export class SipRenderFile {
         let data = Object.assign({}, SipRenderFile.extend, _getTmplPropVar(template));
         data.tmplName = tmplName;
         data.input = input;
-        let form = {};
+        let form = _makeFormPropVar(data, forms);
         _makeTmplPropVar(data, form);
         SipRenderFile.warning('SipRender.extend');
         if (extendFn) {

@@ -188,7 +188,7 @@ function _compileItem(item: OutItem, outs: string[]) {
     item.parent = null;//断开连接
 }
 
-type Buildtor = ($data: any, $helper: any, $form:any) => string;
+type Buildtor = ($data: any, $helper?: any, $form?:any) => string;
 
 function _compile(template: string): Buildtor {
     let outs: string[] = [];
@@ -226,7 +226,7 @@ export const SipRender = {
     render(template: string, data: any, helper?: any, form?: any): string {
         if (!SipRender.hasRender(template)) return template;
         let buildtor = SipRender.compile(template);
-        return buildtor(data, helper||{}, form ||{});
+        return buildtor(data, helper, form);
     },
     /** 是否存在${...} */
     hasRender: function (template: string): boolean {

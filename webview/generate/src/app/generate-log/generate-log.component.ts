@@ -48,6 +48,11 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
     return this.genSrv.forms;
   }
 
+  get hasForm(){
+    let forms = this.forms;
+    return forms && forms.length > 0;
+  }
+
   close() {
     if (this.genSrv.generateFirstFile) {
       this._vsMsg.openFileEx(this.genSrv.generateFirstFile).subscribe();
@@ -55,8 +60,14 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
     this._vsMsg.close();
   }
 
-  ngOnInit() {
+  isStart = false;
+  start(){
+    this.isStart = true;
     this.genSrv.start();
+  }
+
+  ngOnInit() {
+    this.hasForm || this.start();
   }
 
   get genReports(): LogItem[] {

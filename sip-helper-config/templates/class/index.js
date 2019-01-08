@@ -1,8 +1,36 @@
 /// <reference path="../../sip-helper.d.ts" />
 
-
-/** 定义输入 */
-SipRender.forms([]);
+/** 定义Form */
+SipRender.forms([
+    {
+        name: 'text1',
+        title: 'text-title',
+        uiType: 'input',
+        /** 只能使用 @{传入参数} 或 @{$form.name}(注意定义顺序) */
+        defaultValue: '@{input}-input',
+        source: null,
+        style: null,
+        desc: ''
+    },
+    {
+        name: 'select1',
+        title: 'select-title',
+        uiType: 'select',
+        defaultValue: '1',
+        source: [{ value: '1', text: '1111' }, { value: '2', text: "2222" }],
+        style: null,
+        desc: ''
+    },
+    {
+        name: 'textarea1',
+        title: 'textarea-title',
+        uiType: 'textarea',
+        defaultValue: '@{input}-textarea',
+        source: null,
+        style: null,
+        desc: ''
+    }
+]);
 
 /** 定义 render 模板 */
 SipRender.templates([
@@ -11,7 +39,7 @@ SipRender.templates([
         "fileName": "@{input}",
         "extend": "ts",
         "path": "@{curPath}",
-        "templateFile": "./class.txt",
+        "templateFile": "./class.tmpl",
         "templateExtend": "./class.js"
     }
 ]);

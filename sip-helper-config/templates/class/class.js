@@ -7,5 +7,5 @@
  *  $form：为UI输入内容，object
  */
 SipRender.extend(function ($data, $helper, $form) {
-    $data.hello = "hello world";
+    $data.hello = "hello world" + ' - ' + $form.text1;
 });

@@ -17,10 +17,6 @@ export class GenerateLogService {
     isLinux: boolean = false;
 
     constructor(private _vsMsg: VscodeMessageService) {
-
-    }
-
-    start() {
         let options = this._vsMsg.options;
         this.isLinux = options.isLinux;
         this.tmplPath = options.tmplPath;
@@ -54,15 +50,23 @@ export class GenerateLogService {
                         return SipRenderFile.errorOut(...args);
                     }
                 });
-                this.loadTemplateContent().subscribe(() => {
-                    this.generate();
-                });
             } catch (e) {
                 this.error(e.toString());
             }
         } else {
             this.error('没有index.js内容');
         }
+    }
+
+    start() {
+        try {
+            this.loadTemplateContent().subscribe(() => {
+                this.generate();
+            });
+        } catch (e) {
+            this.error(e.toString());
+        }
+
     }
 
     joinPath(path) {
@@ -134,7 +138,7 @@ export class GenerateLogService {
         let tmplName = this._vsMsg.options.tmplName;
         this.templates.forEach((template) => {
             this.warning(`render 文件：${template.templateExtend}`);
-            let item = this.rd.render(template, this.extendFn, tmplName, input);
+            let item = this.rd.render(template, this.extendFn, tmplName, input, this.forms);
             item.logs.forEach((item) => {
                 this.genReports.push(item);
             });
