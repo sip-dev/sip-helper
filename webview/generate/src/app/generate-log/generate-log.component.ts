@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IVscodeOption, LogItem, SipRenderInputItem } from '../core/base';
+import { IVscodeOption, LogItem, SipRenderFormItem } from '../core/base';
 import { GenerateLogService } from '../core/services/generate-log.service';
 import { VscodeMessageService } from '../core/services/vscode-message.service';
 
@@ -16,6 +16,9 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
     if (generateOpt) {
       this._vsMsg.input = generateOpt.input || 'demo';
       document.addEventListener('keydown', this.keydown);
+    }
+    this.genSrv.onEnd = () => {
+      setTimeout(function(){ window.scrollTo(0, 1000000);}, 50);
     }
   }
 
@@ -44,11 +47,11 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
     this.genSrv.generating = p;
   }
 
-  get forms(): SipRenderInputItem[] {
+  get forms(): SipRenderFormItem[] {
     return this.genSrv.forms;
   }
 
-  get hasForm(){
+  get hasForm() {
     let forms = this.forms;
     return forms && forms.length > 0;
   }
@@ -61,7 +64,7 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
   }
 
   isStart = false;
-  start(){
+  start() {
     this.isStart = true;
     this.genSrv.start();
   }

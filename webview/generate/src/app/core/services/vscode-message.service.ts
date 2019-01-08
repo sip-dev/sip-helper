@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { IConfig, ITmplItem, IVscodeOption } from '../base';
+import { IVscodeOption } from '../base';
 import { SipRenderFile } from '../sip-render-file';
 
 declare const vscode: any;
@@ -54,13 +54,6 @@ export class VscodeMessageService {
         this.options.input = p;
     }
 
-    public get prefix(): string {
-        return this.options.prefix;
-    }
-    public set prefix(p: string) {
-        this.options.prefix = p;
-    }
-
     private _inited = false;
     _startUP(callback: () => void) {
         if (this._inited) { callback(); return }
@@ -71,7 +64,6 @@ export class VscodeMessageService {
                 isDir: true,
                 isLinux: false,
                 input: 'demo',
-                prefix: 'app',
                 fileName: '',
                 tmplName: '',
                 tmplPath: '',
@@ -194,22 +186,6 @@ export class VscodeMessageService {
 
     log(msg: any): Observable<void> {
         return this._sendMsg('log', msg);
-    }
-
-    private _config: IConfig;
-    public get config(): IConfig {
-        return this._config;
-    }
-    public set config(p: IConfig) {
-        this._config = p;
-    }
-
-    saveConfig(tmpls: ITmplItem[]): Observable<string> {
-        return this._sendMsg('saveConfig', { templates: JSON.stringify(tmpls) });
-    }
-
-    readConfig(): Observable<string> {
-        return this._sendMsg('readConfig');
     }
 
     importToModule(file: string, moduleFile: string, className: string, regOpt: {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { zip } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { LogItem, LogStyle, SipRenderInputItem, SipRenderOut, SipRenderTemplateItem } from '../base';
+import { LogItem, LogStyle, SipRenderFormItem, SipRenderOut, SipRenderTemplateItem } from '../base';
 import { JoinPath } from '../lib';
 import { SipRenderFile } from '../sip-render-file';
 import { VscodeMessageService } from './vscode-message.service';
@@ -10,11 +10,13 @@ import { VscodeMessageService } from './vscode-message.service';
 @Injectable()
 export class GenerateLogService {
 
-    forms: SipRenderInputItem[] = [];
+    forms: SipRenderFormItem[] = [];
     templates: SipRenderTemplateItem[] = [];
     extendFn: any;
     tmplPath: string = '';
     isLinux: boolean = false;
+
+    onEnd: () => void;
 
     constructor(private _vsMsg: VscodeMessageService) {
         let options = this._vsMsg.options;
@@ -138,7 +140,7 @@ export class GenerateLogService {
         let tmplName = this._vsMsg.options.tmplName;
         this.templates.forEach((template) => {
             this.warning(`render 文件：${template.templateExtend}`);
-            let item = this.rd.render(template, this.extendFn, tmplName, input, this.forms);
+            let item = this.rd.renderTmpl(template, this.extendFn, tmplName, input, this.forms);
             item.logs.forEach((item) => {
                 this.genReports.push(item);
             });
@@ -161,6 +163,7 @@ export class GenerateLogService {
         });
         zip(...outs).subscribe(() => {
             this.generating = 2;
+            if (this.onEnd) this.onEnd();
         });
     }
 

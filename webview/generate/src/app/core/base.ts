@@ -1,43 +1,4 @@
 
-export interface IFileItem {
-    input?: string;
-    fileName: string;
-    path: string;
-    pathType?: 'dir' | 'file';
-    type: string;
-    className: string;
-    typeInfo?: IGenTypeInfo;
-    active: boolean;
-    importToModue?: string;
-    importToRouting?: string;
-    tsContent?: string;
-    specContent?: string;
-    htmlContent?: string;
-    styleContent?: string;
-    extend?: string;
-    extendContent?: string;
-}
-
-export interface IGenTypeInfo {
-    ts?: boolean;
-    html?: boolean;
-    style?: boolean;
-    styleType?: string;
-    spec?: boolean;
-    importToModue?: boolean;
-    importToRouting?: boolean;
-    moduleExport?: boolean;
-    moduleImport?: boolean;
-    moduleDeclaration?: boolean;
-    moduleEntryComponent?: boolean;
-    moduleProvider?: boolean;
-    extend?: boolean;
-}
-
-export interface IGenType {
-    [key: string]: IGenTypeInfo;
-}
-
 /** 插件传过来的参数 */
 export interface IVscodeOption {
     /** 是否debug模式 */
@@ -50,7 +11,6 @@ export interface IVscodeOption {
     tmplName?: string;
     tmplPath?: string;
     tmplIndex?: string;
-    prefix?: string;
     fileName?: string;
     workspaceRoot?: string;
     extensionPath?: string;
@@ -64,36 +24,7 @@ export interface IVscodeOption {
     helper?: string;
 }
 
-/** 输入 */
-export interface FormItem {
-    name: string;
-    title?: string;
-    defaultValue?: any;
-    desc?: string;
-    readonly?: boolean;
-    /** 数据源， [{value:'', text:''}] */
-    source?: any;
-    uiType?: 'input' | 'texteare' | 'select' | 'boolean';
-}
-
-/** 模板 */
-export interface ITmplItem {
-    title: string;
-    index?: number;
-    active?: boolean;
-    files: IFileItem[];
-    forms?: FormItem[];
-}
-
-/** 保存模板配置 */
-export interface IConfig {
-    prefix?: string;
-    templates?: ITmplItem[];
-}
-
-
-
-export interface SipRenderInputItem {
+export interface SipRenderFormItem {
     /** 变量名 */
     name: string;
     /** 显示标题 */

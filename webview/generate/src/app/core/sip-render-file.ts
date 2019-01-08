@@ -1,19 +1,6 @@
-import { LogItem, LogStyle, SipRenderInputItem as SipRenderFormItem, SipRenderOut, SipRenderTemplateItem } from './base';
+import { LogItem, LogStyle, SipRenderFormItem, SipRenderOut, SipRenderTemplateItem } from './base';
 import { JoinPath } from "./lib";
 import { SipRender } from "./sip-render";
-
-
-/** file支持render内容的属性，注意顺序 */
-const _fileProps = [
-    'input', 'prefix',
-    'fileName', 'extend', 'path', 'className'
-];
-
-function _makeFilePropVar(data: any, form:any): void {
-    _fileProps.forEach(function (item) {
-        data[item] = _getVarIn(data, data[item], form);
-    });
-}
 
 function _getVarIn(data: any, template: string, form:any): string {
     if (!template) return template;
@@ -98,8 +85,7 @@ export class SipRenderFile {
         return _logs;
     }
 
-
-    render(template: SipRenderTemplateItem, extendFn: (data: any, helper: any, form:any) => void, tmplName: string, input: string, forms:SipRenderFormItem[]): SipRenderOut {
+    renderTmpl(template: SipRenderTemplateItem, extendFn: (data: any, helper: any, form:any) => void, tmplName: string, input: string, forms:SipRenderFormItem[]): SipRenderOut {
         _logs = [];
 
         let isLinux = SipRenderFile.extend.isLinux;

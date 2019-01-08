@@ -2,14 +2,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { commands, ExtensionContext, Position, Range, Terminal, TextDocument, Uri, ViewColumn, window, workspace } from 'vscode';
-import { CalcImportPath, CalcPath, ContentBase, FindModuleFile, FindPathUpward, FindUpwardModuleFiles, IsDirectory, IsEmptyDirectory, MakeClassName, PushToImport, PushToModuleDeclarations, PushToModuleEntryComponents, PushToModuleExports, PushToModuleImports, PushToModuleProviders, PushToModuleRouting } from './contents/content-base';
-import { SipRegModule } from './contents/sip-reg-module';
+import { CalcImportPath, CalcPath, FindModuleFile, FindPathUpward, FindUpwardModuleFiles, IsDirectory, MakeClassName, PushToImport, PushToModuleDeclarations, PushToModuleEntryComponents, PushToModuleExports, PushToModuleImports, PushToModuleProviders, PushToModuleRouting } from './contents/content-base';
 import { Lib } from './lib';
 
 let argv = require('yargs-parser');
 
-
-let stringify = require('json-stable-stringify');
 var jsonic = require('jsonic');
 
 function getCurrentPath(args): string {
@@ -27,11 +24,6 @@ export interface IParam {
     title: string;
     input: boolean;
     terminal?: string;
-}
-
-export interface IConfig {
-    prefix: string;
-    templates: any[];
 }
 
 export interface IConfigCommand {
@@ -124,10 +116,7 @@ export function activate(context: ExtensionContext) {
                 (error) => console.error(error));
         });
     }));
-    context.subscriptions.push(commands.registerCommand('siphelper.sipgenerate.tmpl', (args) => {
-        _preDoneRegisterCommand(args);
-        showSipGenerateUI(args);
-    }));
+
     context.subscriptions.push(commands.registerCommand('siphelper.component.switchfile', (args) => {
         let curFile = getCurrentPath(args);
         let curPath = path.dirname(curFile);
@@ -243,12 +232,6 @@ export function activate(context: ExtensionContext) {
             moduleFile: FindModuleFile(rootPath, fsPath)
         }, p);
         switch (config.command) {
-            case 'config':
-                setConfig();
-                break;
-            case 'render-helper':
-                setHelper();
-                break;
             case 'npm':
                 npm();
                 break;
@@ -267,93 +250,9 @@ export function activate(context: ExtensionContext) {
             case 'sip-generate':
                 commands.executeCommand('siphelper.sipgenerate', args);
                 break;
-            case 'sip-generate-tmpl':
-                commands.executeCommand('siphelper.sipgenerate.tmpl', args);
-                break;
-            case 'sip-regmodlue':
-                sipRegmodlue(new SipRegModule(), gParam);
-                break;
-            case 'sip-gen-del':
-                if (IsDirectory(_curFile)) {
-                    window.showWarningMessage('不能处理目录!');
-                } else {
-                    window.showInformationMessage(`确定要删除 ${path.basename(_curFile)} 吗?`, '确定').then((text) => {
-                        if (text == '确定') sipGenerateDel(gParam);
-                    });
-                }
-                break;
         }
     };
-    let sipRegmodlue = (genObj: ContentBase, p: any) => {
-        if (IsDirectory(_curFile)) {
-            window.showWarningMessage('不能处理目录!');
-            return;
-        }
-        let rootPath = p.rootPath;
-        let curFile = p.path = _curFile;
-        let curPath = path.dirname(_curFile);
-        p.name = path.basename(_curFile).split('.')[0];
-        let files = FindUpwardModuleFiles(rootPath, curFile);
-        let routingRegex = /\-routing\./i;
-        files = files.filter((file) => {
-            if (p.routing) return routingRegex.test(file);
-            if (p.module) return true;
-            if (p.both) return !routingRegex.test(file);
 
-            if (p.cleanrouting) return routingRegex.test(file);
-            if (p.cleanmodule) return true;
-            if (p.cleanboth) return !routingRegex.test(file);
-        });
-        let picks = files.map(file => path.relative(curPath, file));
-        window.showQuickPick(picks).then(file => {
-            if (!file) return;
-            file = path.join(curPath, file);
-            if (p.both || p.cleanboth) {
-                //处理module
-                p.moduleFile = file;
-                p.module = p.both;
-                p.routing = false;
-                p.cleanmodule = p.cleanboth;
-                p.cleanrouting = false;
-                genObj.generate(p);
-                //处理routing
-                p.moduleFile = file.replace(/\.module\.ts$/, '-routing.module.ts');
-                p.module = false;
-                p.routing = p.both;
-                p.cleanmodule = false;
-                p.cleanrouting = p.cleanboth;
-                genObj.generate(p);
-
-            } else {
-                p.moduleFile = file;
-                genObj.generate(p);
-            }
-        });
-    };
-    let sipGenerateDel = (p: any, args?: any) => {
-        p.cleanmodule = true;
-        p.cleanrouting = true;
-        let rootPath = p.rootPath;
-        let curFile = p.path = _curFile;
-        p.name = path.basename(_curFile).split('.')[0];
-        let files = FindUpwardModuleFiles(rootPath, curFile);
-        files.forEach((file) => {
-            if (!file) return;
-            p.moduleFile = file;
-            new SipRegModule().generate(p);
-        });
-
-        let delInfo = path.parse(curFile);
-        let delPath = path.join(delInfo.dir, delInfo.name);
-        ['html', 'ts', 'css', 'less', 'spec.ts'].map((item) => {
-            let file = [delPath, item].join('.');
-            if (fs.existsSync(file)) {
-                fs.unlinkSync(file);
-            }
-        })
-        if (IsEmptyDirectory(delInfo.dir))
-            fs.rmdirSync(delInfo.dir);
-    };
     let showQuickPick = (configs: IConfigCommand[], parentPath: string, args) => {
         let picks = configs.map(item => item.title);
 
@@ -430,68 +329,11 @@ export function activate(context: ExtensionContext) {
         }
     };
 
-    let configFile = './sip-helper.config.json';
-
-    let getConfig = (): IConfig => {
-        let fsPath = path.join(_getRootPath(), configFile);
-        let fsDefaultConfig = fs.readFileSync(path.join(context.extensionPath, 'default.config.json'), 'utf-8');
-        return (!fs.existsSync(fsPath)) ? jsonic(fsDefaultConfig) : jsonic(fs.readFileSync(fsPath, 'utf-8'));
-    };
-
     let getCommands = (): IConfigCommand[] => {
         let fsPath = fs.readFileSync(path.join(context.extensionPath, 'commands.config.json'), 'utf-8');
         return jsonic(fsPath);
     };
     let _commands = getCommands();
-
-    let setConfig = () => {
-        saveDefaultConfig();
-        let fsPath = path.join(_getRootPath(), configFile);
-
-        workspace.openTextDocument(fsPath).then((textDocument) => {
-            if (!textDocument) return;
-            window.showTextDocument(textDocument).then((editor) => {
-            });
-        });
-    };
-
-    let saveDefaultConfig = () => {
-        let fsPath = path.join(_getRootPath(), configFile);
-        if (fs.existsSync(fsPath)) return;
-        let fsDefaultConfig = fs.readFileSync(path.join(context.extensionPath, 'default.config.json'), 'utf-8');
-        fs.writeFileSync(fsPath, fsDefaultConfig, 'utf-8');
-    };
-
-    let helperFile = './sip-helper.config.js';
-    let setHelper = () => {
-        saveDefaultHelper();
-
-        let fsPath = path.join(_getRootPath(), helperFile);
-        workspace.openTextDocument(fsPath).then((textDocument) => {
-            if (!textDocument) return;
-            window.showTextDocument(textDocument).then((editor) => {
-            });
-        });
-    };
-
-    let saveDefaultHelper = () => {
-        let fsPath = path.join(_getRootPath(), helperFile);
-        if (fs.existsSync(fsPath)) return;
-        let fsDefaultHelper = fs.readFileSync(path.join(context.extensionPath, 'default.config.js'), 'utf-8');
-        fs.writeFileSync(fsPath, fsDefaultHelper, 'utf-8');
-    };
-    let getHelper = (): string => {
-        let fsPath = path.join(_getRootPath(), helperFile);
-        let fsDefaultHelper = fs.readFileSync(path.join(context.extensionPath, 'default.config.js'), 'utf-8');
-        return (!fs.existsSync(fsPath)) ? fsDefaultHelper : fs.readFileSync(fsPath, 'utf-8');
-    };
-
-    let saveConfigTmpls = (templates: any[]) => {
-        let config = getConfig();
-        config.templates = templates;
-        let fsPath = path.join(_getRootPath(), configFile);
-        fs.writeFileSync(fsPath, stringify(config, { space: '    ' }), 'utf-8');
-    };
 
     let npm = () => {
         let fsPath = path.join(_getRootPath(), './package.json');
@@ -744,12 +586,6 @@ ${props.join('\n')}
                     };
                     receiveMsg(id, cmd, opt);
                     break;
-                case 'saveConfig':
-                    saveConfigTmpls(JSON.parse(data.templates));
-                    break;
-                case 'readConfig':
-                    receiveMsg(id, cmd, JSON.stringify(getConfig()));
-                    break;
                 case 'saveFile':
                     /**data:{ file: 'demo/demo.ts', content: 'content', basePath:'', dir:false, fullPath:'' } */
                     let fullPath: string = data.fullPath ? data.fullPath : path.join(data.basePath || curPath, data.file);
@@ -785,37 +621,6 @@ ${props.join('\n')}
                         readContent = fs.readFileSync(readFile, 'utf-8');
                     }
                     receiveMsg(id, cmd, readContent);
-                    break;
-                case 'importToModule':
-                    /**data:
-                     * {
-                     *      file:'', module:'', basePath:'', className:'',
-                     *      regOpt:{
-                     *       moduleExport?: boolean;
-                     *       moduleImport?: boolean;
-                     *       moduleDeclaration?: boolean;
-                     *       moduleEntryComponent?: boolean;
-                     *       moduleProvider?: boolean;
-                     *       moduleRouting?: boolean;
-                     *       routePath:string;
-                     *   }
-                     * } */
-                    let regFile: string = path.join(data.basePath || curPath, data.file);
-                    let regFilePath: string = path.dirname(regFile);
-                    let retRegFile = path.relative(curPath, regFile);
-                    let regModuleFile: string = fs.existsSync(data.moduleFile) ? data.moduleFile : path.join(regFilePath, data.moduleFile);
-                    try {
-                        if (regModule(regFile, regModuleFile, data.className, data.regOpt)) {
-                            receiveMsg(id, cmd, [retRegFile, '注册到', path.relative(curPath, regModuleFile), '成功'].join(', '));
-                        }
-                        else
-                            receiveMsg(id, cmd, ['注册', retRegFile, '文件不存在！'].join(', '));
-                    }
-                    catch (e) {
-                        receiveMsg(id, cmd, ['注册', retRegFile, e.message].join(', '));
-                    }
-                    break;
-                case 'importToRouting':
                     break;
                 case 'log':
                     console.log(data)
