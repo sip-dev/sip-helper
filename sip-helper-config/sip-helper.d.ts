@@ -5,6 +5,8 @@ interface IRenderHelper {
     debug: boolean;
     extend: (obj) => void;
     log: (...args: string[]) => string;
+    warning: (...args: string[]) => string;
+    error: (...args: string[]) => string;
 }
 
 
@@ -70,7 +72,10 @@ interface SipRenderExtendTemplate {
 interface ISipRender {
     inputs: (options: SipRenderInputItem[]) => void;
     templates: (templates: SipRenderTemplateItem[]) => void;
-    extend: (extend: ($template: SipRenderExtendTemplate, $helper: any) => void) => void
+    extend: (extend: ($template: SipRenderExtendTemplate, $helper: any) => void) => void;
+    log: (...args: string[]) => string;
+    warning: (...args: string[]) => string;
+    error: (...args: string[]) => string;
 }
 
 declare const SipRender: ISipRender;

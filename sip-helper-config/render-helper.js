@@ -15,12 +15,10 @@ var _helper = {
     }
 };
 
-RenderHelper.debug = true;
+/** 是否debug模式 */
+RenderHelper.debug = false;
 
 /**
  * 扩展helper
- * RenderHelper 提供两个方法：
- *  1. RenderHelper.extend(obj: object)
- *  2. RenderHelper.log(...args: string[])
  */
 RenderHelper.extend(_helper);
