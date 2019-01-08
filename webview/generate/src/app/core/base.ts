@@ -65,7 +65,7 @@ export interface IVscodeOption {
 }
 
 /** 输入 */
-export interface InputItem {
+export interface FormItem {
     name: string;
     title?: string;
     defaultValue?: any;
@@ -82,7 +82,7 @@ export interface ITmplItem {
     index?: number;
     active?: boolean;
     files: IFileItem[];
-    inputs?: InputItem[];
+    forms?: FormItem[];
 }
 
 /** 保存模板配置 */

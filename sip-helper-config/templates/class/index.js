@@ -2,7 +2,7 @@
 
 
 /** 定义输入 */
-SipRender.inputs([]);
+SipRender.forms([]);
 
 /** 定义 render 模板 */
 SipRender.templates([

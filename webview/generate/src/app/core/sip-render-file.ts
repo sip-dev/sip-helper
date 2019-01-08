@@ -137,7 +137,7 @@ export class SipRenderFile {
             try {
                 SipRenderFile.log(`SipRender.extend：${template.templateExtend}`);
                 (new Function('SipRender', template.script))({
-                    inputs: (inputs) => {
+                    forms: (forms) => {
                     },
                     templates: (templates) => {
                     },

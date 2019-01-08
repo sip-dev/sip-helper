@@ -103,6 +103,6 @@ export const DEFAULT_TMPLS: ITmplItem[] = [{
             }
         }
     ],
-    "inputs": [],
+    "forms": [],
     "title": "class"
 }];

@@ -23,7 +23,7 @@ interface IRenderHelper {
 declare const RenderHelper: IRenderHelper;
 
 
-interface SipRenderInputItem {
+interface SipRenderFormItem {
     /** 变量名 */
     name: string;
     /** 显示标题 */
@@ -84,7 +84,7 @@ interface ISipRender {
     /**
      * 设置生成时UI输入
      */
-    inputs: (options: SipRenderInputItem[]) => void;
+    forms: (options: SipRenderFormItem[]) => void;
     /**
      * 设置模板内容
      */

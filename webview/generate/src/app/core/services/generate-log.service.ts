@@ -10,7 +10,7 @@ import { VscodeMessageService } from './vscode-message.service';
 @Injectable()
 export class GenerateLogService {
 
-    inputs: SipRenderInputItem[] = [];
+    forms: SipRenderInputItem[] = [];
     templates: SipRenderTemplateItem[] = [];
     extendFn: any;
     tmplPath: string = '';
@@ -35,8 +35,8 @@ export class GenerateLogService {
                 this.warning('解释index');
                 this.log(tmplIndex);
                 (new Function('SipRender', tmplIndex))({
-                    inputs: (inputs) => {
-                        this.inputs = inputs;
+                    forms: (forms) => {
+                        this.forms = forms;
                     },
                     templates: (templates) => {
                         this.templates = templates;
