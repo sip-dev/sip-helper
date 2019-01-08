@@ -92,7 +92,7 @@ interface ISipRender {
     /**
      * 扩展 $data
      */
-    extend: (extend: ($data: SipRenderExtendData, $helper: any) => void) => void;
+    extend: (extend: ($data: SipRenderExtendData, $helper: any, $form:any) => void) => void;
     /**
      * log信息
      */

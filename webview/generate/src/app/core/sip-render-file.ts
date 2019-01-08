@@ -1,4 +1,4 @@
-import { IFileItem, LogItem, LogStyle, SipRenderOut, SipRenderTemplateItem } from "./base";
+import { LogItem, LogStyle, SipRenderOut, SipRenderTemplateItem } from "./base";
 import { JoinPath } from "./lib";
 import { SipRender } from "./sip-render";
 
@@ -9,16 +9,16 @@ const _fileProps = [
     'fileName', 'extend', 'path', 'className'
 ];
 
-function _makeFilePropVar(data: any): void {
+function _makeFilePropVar(data: any, form:any): void {
     _fileProps.forEach(function (item) {
-        data[item] = _getVarIn(data, data[item]);
+        data[item] = _getVarIn(data, data[item], form);
     });
 }
 
-function _getVarIn(data: any, template: string): string {
+function _getVarIn(data: any, template: string, form:any): string {
     if (!template) return template;
     if (!SipRender.hasRender(template)) return template;
-    return SipRender.render(template, data, SipRenderFile.helper);
+    return SipRender.render(template, data, SipRenderFile.helper, form);
 }
 
 /** template支持render内容的属性，注意顺序 */
@@ -33,9 +33,9 @@ function _getTmplPropVar(data: any) {
     });
     return newData
 }
-function _makeTmplPropVar(data: any) {
+function _makeTmplPropVar(data: any, form:any) {
     _tmplProps.forEach(function (item) {
-        data[item] = _getVarIn(data, data[item]);
+        data[item] = _getVarIn(data, data[item], form);
     });
 }
 let _logs: LogItem[] = [];
@@ -90,32 +90,8 @@ export class SipRenderFile {
         return _logs;
     }
 
-    renderFile(file: IFileItem, notConent?: boolean, tmplName?: string): SipRenderOut {
-        _logs = [];
 
-        let data = Object.assign({}, SipRenderFile.extend, file);
-        if (tmplName) data.tmplName = tmplName;
-
-        _makeFilePropVar(data);
-
-        let ret: SipRenderOut = {
-            fullPath: JoinPath(data.path, data.fileName),
-            content: notConent === true ? '' : _getVarIn(data, data.extendContent),
-            dir: data.pathType == 'dir',
-            logs: _logs
-        };
-
-        return ret;
-    }
-
-    getFileFullPath(file: IFileItem, tmplTitle: string) {
-        let info = this.renderFile(file, true, tmplTitle);
-
-        let fileName = info.fullPath;
-        return info.dir ? fileName : [fileName, file.extend].join('.');
-    }
-
-    render(template: SipRenderTemplateItem, extendFn: (data: any, helper: any) => void, tmplName: string, input: string): SipRenderOut {
+    render(template: SipRenderTemplateItem, extendFn: (data: any, helper: any, form:any) => void, tmplName: string, input: string): SipRenderOut {
         _logs = [];
 
         let isLinux = SipRenderFile.extend.isLinux;
@@ -123,12 +99,13 @@ export class SipRenderFile {
         let data = Object.assign({}, SipRenderFile.extend, _getTmplPropVar(template));
         data.tmplName = tmplName;
         data.input = input;
-        _makeTmplPropVar(data);
+        let form = {};
+        _makeTmplPropVar(data, form);
         SipRenderFile.warning('SipRender.extend');
         if (extendFn) {
             try {
                 SipRenderFile.log('SipRender.extend：index.js');
-                extendFn(data, SipRenderFile.helper);
+                extendFn(data, SipRenderFile.helper, form);
             } catch (e) {
                 _logs.push({ text: e.toString(), style: LogStyle.error });
             }
@@ -142,7 +119,7 @@ export class SipRenderFile {
                     templates: (templates) => {
                     },
                     extend: (fn) => {
-                        fn(data, SipRenderFile.helper);
+                        fn(data, SipRenderFile.helper, form);
                     },
                     log(...args: string[]) {
                         return SipRenderFile.logOut(...args);
@@ -166,7 +143,7 @@ export class SipRenderFile {
         if (!dir) {
             fullPath = JoinPath(fullPath, data.fileName, isLinux);
             if (data.extend) fullPath = [fullPath, data.extend].join('.');
-            content = _getVarIn(data, template.content);
+            content = _getVarIn(data, template.content, form);
         }
         let ret: SipRenderOut = {
             fullPath: fullPath,

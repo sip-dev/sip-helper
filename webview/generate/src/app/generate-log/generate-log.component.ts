@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IVscodeOption, LogItem } from '../core/base';
+import { IVscodeOption, LogItem, SipRenderInputItem } from '../core/base';
 import { GenerateLogService } from '../core/services/generate-log.service';
 import { VscodeMessageService } from '../core/services/vscode-message.service';
 
@@ -42,6 +42,10 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
 
   set generating(p: number) {
     this.genSrv.generating = p;
+  }
+
+  get forms(): SipRenderInputItem[] {
+    return this.genSrv.forms;
   }
 
   close() {

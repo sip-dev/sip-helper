@@ -188,7 +188,7 @@ function _compileItem(item: OutItem, outs: string[]) {
     item.parent = null;//断开连接
 }
 
-type Buildtor = ($data:any, $helper?:any) => string;
+type Buildtor = ($data: any, $helper: any, $form:any) => string;
 
 function _compile(template: string): Buildtor {
     let outs: string[] = [];
@@ -196,7 +196,7 @@ function _compile(template: string): Buildtor {
     _compileItem(root, outs);
     let fn
     try {
-        fn = new Function('$data', '$helper', `var _s_i_mainFn_190104 = function($data, $helper){
+        fn = new Function('$data', '$helper', '$form', `var _s_i_mainFn_190104 = function($data, $helper){
             with($data){
                 return ${_makeComileString(outs)};
             }
@@ -223,13 +223,13 @@ export const SipRender = {
         _setCache(template, buildtor);
         return buildtor;
     },
-    render(template: string, data: any, helper?:any): string {
+    render(template: string, data: any, helper?: any, form?: any): string {
         if (!SipRender.hasRender(template)) return template;
         let buildtor = SipRender.compile(template);
-        return buildtor(data, helper);
+        return buildtor(data, helper||{}, form ||{});
     },
     /** 是否存在${...} */
-    hasRender:function(template:string):boolean{
+    hasRender: function (template: string): boolean {
         _itemRegex.lastIndex = 0;
         return _itemRegex.test(template);
     }
