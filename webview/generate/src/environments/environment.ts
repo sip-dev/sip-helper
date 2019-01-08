@@ -4,7 +4,82 @@
 
 export const environment = {
   production: false,
-  isVscode: window['isVscodeMode'] === true
+  isVscode: window['isVscodeMode'] === true,
+  render: {
+    helper: `/// <reference path="./sip-helper.d.ts" />
+
+    /** 定义helper */
+    var _helper = {
+        log: function () {
+            return RenderHelper.log.apply(RenderHelper, arguments);
+        },
+        /** 大驼峰转换：sip-user_list.component ===> SipUserListComponent */
+        upperCamel(str) {
+            return (str || '').replace(/\b(\w)|\s(\w)/g, function (m) { return m.toUpperCase(); }).replace(/[^a-z0-9]/gi, '');
+        },
+        /** 小驼峰转换：sip-user_list.component ===> sipUserListComponent */
+        camel(str) {
+            return _helper.upperCamel(str).replace(/^\w/, function (f) { return f.toLowerCase(); });
+        }
+    };
+
+    /** 是否debug模式 */
+    RenderHelper.debug = true;
+        
+    /**
+     * 扩展helper
+     * RenderHelper 提供两个方法：
+     *  1. RenderHelper.extend(obj: object)
+     *  2. RenderHelper.log(...args: string[])
+     */
+    RenderHelper.extend(_helper);
+    `,
+    index: `/// <reference path="../../sip-helper.d.ts" />
+
+
+    /** 定义输入 */
+    SipRender.inputs([]);
+    
+    /** 定义 render 模板 */
+    SipRender.templates([
+        {
+            "isDir": false,
+            "fileName": "@{input}",
+            "extend": "ts",
+            "path": "@{curPath}",
+            "templateFile": "templateFile",
+            "templateExtend": "templateExtend"
+        }
+    ]);
+    
+    /**
+     * 扩展 render template数据, 这里会在所有模板文件生效
+     *  $data: template数据
+     *  $helper: 为render-helper.js定义内容
+     * 
+     */
+    SipRender.extend(function ($data, $helper) {
+    
+        $data.className = $helper.upperCamel($data.fileName);
+    
+    });`,
+    template: `
+    class @{className} {
+    
+    
+    }`,
+    script: `/// <reference path="../../sip-helper.d.ts" />
+
+    /**
+     * 扩展 render template数据，这里只在本模板文件生效
+     *  $data: template数据
+     *  $helper: 为render-helper.js定义内容
+     * 
+     */
+    SipRender.extend(function ($data, $helper) {
+    
+    });`,
+  }
 };
 
 /*

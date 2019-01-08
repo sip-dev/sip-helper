@@ -1,6 +1,8 @@
 
 
 interface IRenderHelper {
+    /** 是否debug模式 */
+    debug: boolean;
     extend: (obj) => void;
     log: (...args: string[]) => string;
 }

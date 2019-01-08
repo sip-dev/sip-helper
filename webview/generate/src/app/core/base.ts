@@ -40,6 +40,8 @@ export interface IGenType {
 
 /** 插件传过来的参数 */
 export interface IVscodeOption {
+    /** 是否debug模式 */
+    debug:boolean;
     curPath?: string;
     curFile?: string;
     isDir?: boolean;
@@ -121,13 +123,26 @@ export interface SipRenderTemplateItem {
     "templateFile": string;
     /** 模板扩展位置 */
     "templateExtend": string;
-    content?:string;
-    script?:string;
+    content?: string;
+    script?: string;
 }
 
 export interface SipRenderOut {
-    fileName: string;
+    fullPath: string;
     content?: string;
     dir: boolean;
-    logs: string[];
+    logs: LogItem[];
+}
+
+export enum LogStyle {
+    default = 'list-group-item',
+    success = 'list-group-item list-group-item-success',
+    warning = 'list-group-item list-group-item-warning',
+    error = 'list-group-item list-group-item-danger',
+    info = 'list-group-item list-group-item-info'
+}
+
+export interface LogItem {
+    text: string;
+    style: LogStyle;
 }

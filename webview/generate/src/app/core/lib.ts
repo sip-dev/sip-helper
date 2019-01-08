@@ -58,7 +58,7 @@ export function CloneFile(file: IFileItem): IFileItem {
 
 export function JoinPath(path: string, fileName: string, isLinux?: boolean): string {
     let pathSplice = isLinux !== false ? '/' : '\\';
-    return [path.trim(), fileName.trim()].join(pathSplice).replace(/[\\\/]{1,}/g, pathSplice).replace(/^[\/\\]/, '');
+    return [!path ? '': path.trim(), !fileName ? '' : fileName.trim()].join(pathSplice).replace(/[\\\/]{1,}/g, pathSplice).replace(/^\s*[\/\\]/, '').replace(/[\/\\]\s*$/, '');
 }
 
 export function GetDefaultTmpl(): ITmplItem {

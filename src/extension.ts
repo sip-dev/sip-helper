@@ -751,22 +751,22 @@ ${props.join('\n')}
                     receiveMsg(id, cmd, JSON.stringify(getConfig()));
                     break;
                 case 'saveFile':
-                    /**data:{ file: 'demo/demo.ts', content: 'content', basePath:'', dir:false } */
-                    let file: string = path.join(data.basePath || curPath, data.file);
-                    let retFile = path.relative(curPath, file);
+                    /**data:{ file: 'demo/demo.ts', content: 'content', basePath:'', dir:false, fullPath:'' } */
+                    let fullPath: string = data.fullPath ? data.fullPath : path.join(data.basePath || curPath, data.file);
+                    let retFile = data.fullPath ? data.fullPath : path.relative(curPath, fullPath);
                     let overWrite = data.flag && data.flag.indexOf('w') >= 0;
-                    if (file && (overWrite || !fs.existsSync(file))) {
+                    if (fullPath && (overWrite || !fs.existsSync(fullPath))) {
                         try {
-                            let content: string = data.content;
-                            let fsPath = path.dirname(file);
-                            if (!fs.existsSync(fsPath)) {
-                                mkdirSync(fsPath);
-                            }
                             if (data.dir) {
-                                mkdirSync(file);
+                                mkdirSync(path.dirname(fullPath));
                                 receiveMsg(id, cmd, [retFile, '成功'].join(', '));
                             } else {
-                                fs.writeFile(file, content, { encoding: 'utf-8', flag: 'w' }, (err) => {
+                                let content: string = data.content;
+                                let fsPath = path.dirname(fullPath);
+                                if (!fs.existsSync(fsPath)) {
+                                    mkdirSync(fsPath);
+                                }
+                                fs.writeFile(fullPath, content, { encoding: 'utf-8', flag: 'w' }, (err) => {
                                     receiveMsg(id, cmd, [retFile, err ? err.message : '成功'].join(', '));
                                 });
                             }
@@ -779,7 +779,7 @@ ${props.join('\n')}
                         receiveMsg(id, cmd, [retFile, '文件已存在！'].join(', '));
                     break;
                 case 'readFile':
-                    let readFile: string = path.join(data.basePath || curPath, data.file);
+                    let readFile: string = data.fullPath ? data.fullPath : path.join(data.basePath || curPath, data.file);
                     let readContent: string = '';
                     if (readFile && fs.existsSync(readFile)) {
                         readContent = fs.readFileSync(readFile, 'utf-8');

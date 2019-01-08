@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { zip } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SipRenderInputItem, SipRenderOut, SipRenderTemplateItem } from '../base';
+import { LogItem, LogStyle, SipRenderInputItem, SipRenderOut, SipRenderTemplateItem } from '../base';
 import { JoinPath } from '../lib';
 import { SipRenderFile } from '../sip-render-file';
 import { VscodeMessageService } from './vscode-message.service';
@@ -17,15 +17,20 @@ export class GenerateLogService {
     isLinux: boolean = false;
 
     constructor(private _vsMsg: VscodeMessageService) {
+
+    }
+
+    start() {
         let options = this._vsMsg.options;
         this.isLinux = options.isLinux;
         this.tmplPath = options.tmplPath;
 
-        this.log('初始化');
-        let tmplIndex = _vsMsg.options.tmplIndex;
+        this.warning('初始化');
+        let tmplIndex = this._vsMsg.options.tmplIndex;
         if (tmplIndex) {
             try {
-                this.log('解释index.js');
+                this.warning('解释index');
+                this.log(tmplIndex);
                 (new Function('SipRender', tmplIndex))({
                     inputs: (inputs) => {
                         this.inputs = inputs;
@@ -35,18 +40,25 @@ export class GenerateLogService {
                     },
                     extend: (fn) => {
                         this.extendFn = fn;
+                    },
+                    log(...args: string[]) {
+                        return SipRenderFile.logOut(...args);
+                    },
+                    warning(...args: string[]) {
+                        return SipRenderFile.warningOut(...args);
+                    },
+                    error(...args: string[]) {
+                        return SipRenderFile.errorOut(...args);
                     }
                 });
-                this.log('读取templateFile和templateExtend');
                 this.loadTemplateContent().subscribe(() => {
-                    this.log('generate');
                     this.generate();
                 });
             } catch (e) {
-                this.log(e.toString());
+                this.error(e.toString());
             }
         } else {
-            this.log('没有index.js内容');
+            this.error('没有index.js内容');
         }
     }
 
@@ -57,12 +69,15 @@ export class GenerateLogService {
     loadTemplateContent() {
         let loadList = [];
         let rxTemp = null;
+        this.warning(`读取模板内容`);
         this.templates.forEach((item) => {
-            rxTemp = this._vsMsg.readFile(this.joinPath(item.templateExtend)).pipe(map(function (content) {
+            rxTemp = this._vsMsg.readFileEx(this.joinPath(item.templateExtend)).pipe(map((content) => {
+                this.log(`${item.templateExtend} 内容：${content}`);
                 item.script = content;
             }));
             loadList.push(rxTemp);
-            rxTemp = this._vsMsg.readFile(this.joinPath(item.templateFile)).pipe(map(function (content) {
+            rxTemp = this._vsMsg.readFileEx(this.joinPath(item.templateFile)).pipe(map((content) => {
+                this.log(`${item.templateFile} 内容：${content}`);
                 item.content = content;
             }));
             loadList.push(rxTemp);
@@ -70,8 +85,33 @@ export class GenerateLogService {
         return zip(...loadList);
     }
 
+    pushReport(style: LogStyle, args: string[]) {
+        args.forEach((item) => {
+            this.genReports.push({
+                text: item,
+                style: style
+            });
+        });
+    }
+
     log(...args: string[]) {
-        this.genReports.push(...args);
+        if (SipRenderFile.debug) {
+            this.pushReport(LogStyle.info, args);
+        }
+    }
+
+    warning(...args: string[]) {
+        if (SipRenderFile.debug) {
+            this.pushReport(LogStyle.warning, args);
+        }
+    }
+
+    error(...args: string[]) {
+        this.pushReport(LogStyle.error, args);
+    }
+
+    success(...args: string[]) {
+        this.pushReport(LogStyle.success, args);
     }
 
     vscodeLog(str: string) {
@@ -79,33 +119,41 @@ export class GenerateLogService {
     }
 
     private rd = new SipRenderFile();
-    genReports: string[] = [];
+    genReports: LogItem[] = [];
     generating = 0;
     generateFirstFile: string;
     generate() {
-        this.genReports = [];
+        // this.genReports = [];
         this.generating = 1;
         let saveList: SipRenderOut[] = [];
         this.generateFirstFile = '';
         let input = this._vsMsg.input;
         let tmplName = this._vsMsg.options.tmplName;
-        this.templates.forEach((tamplate) => {
-            saveList.push(this.rd.render(tamplate, this.extendFn, tmplName, input));
+        this.templates.forEach((template) => {
+            this.warning(`render 文件：${template.templateExtend}`);
+            let item = this.rd.render(template, this.extendFn, tmplName, input);
+            item.logs.forEach((item) => {
+                this.genReports.push(item);
+            });
+            saveList.push(item);
         });
 
         let outs = [];
         saveList.forEach((file) => {
             if (!file.dir) {
-                this.generateFirstFile || (this.generateFirstFile = file.fileName);
-                this.genReports.push(...file.logs);
+                this.generateFirstFile || (this.generateFirstFile = file.fullPath);
             }
-            let rx = this._vsMsg.saveFile(file.fileName, file.content, null, null, file.dir).pipe(map((res) => {
-                this.genReports.push(res || (file.fileName + '生成成功！！'));
+            let rx = this._vsMsg.saveFileEx(file.fullPath, file.content, 'w', file.dir).pipe(map((res) => {
+                let msg = res || (file.fullPath + '生成成功！！');
+                if (msg.indexOf('成功') >= 0) {
+                    this.success(msg);
+                } else
+                    this.error(msg);
             }));
             outs.push(rx);
         });
         zip(...outs).subscribe(() => {
-            // this.generating = 2;
+            this.generating = 2;
         });
     }
 

@@ -15,6 +15,8 @@ var _helper = {
     }
 };
 
+RenderHelper.debug = true;
+
 /**
  * 扩展helper
  * RenderHelper 提供两个方法：

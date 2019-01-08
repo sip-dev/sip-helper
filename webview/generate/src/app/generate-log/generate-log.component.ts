@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IVscodeOption } from '../core/base';
+import { IVscodeOption, LogItem } from '../core/base';
 import { GenerateLogService } from '../core/services/generate-log.service';
 import { VscodeMessageService } from '../core/services/vscode-message.service';
 
@@ -10,7 +10,7 @@ import { VscodeMessageService } from '../core/services/vscode-message.service';
 export class GenerateLogComponent implements OnInit, OnDestroy {
 
   constructor(private _vsMsg: VscodeMessageService,
-    private genSrv:GenerateLogService) {
+    private genSrv: GenerateLogService) {
     this.vscodeOptions = _vsMsg.options;
     let generateOpt = this.vscodeOptions.generate;
     if (generateOpt) {
@@ -50,9 +50,12 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
     }
     this._vsMsg.close();
   }
+
   ngOnInit() {
+    this.genSrv.start();
   }
-  get genReports(): string[] {
+
+  get genReports(): LogItem[] {
     return this.genSrv.genReports;
   }
 

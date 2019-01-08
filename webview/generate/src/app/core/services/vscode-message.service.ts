@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { IConfig, ITmplItem, IVscodeOption } from '../base';
 import { SipRenderFile } from '../sip-render-file';
@@ -72,80 +73,50 @@ export class VscodeMessageService {
                 input: 'demo',
                 prefix: 'app',
                 fileName: '',
-                tmplName:'',
+                tmplName: '',
+                tmplPath: '',
+                debug: false,
+                tmplIndex: '',
                 workspaceRoot: 'd:\\root',
                 extensionPath: 'd:\\temp\\extension',
                 modules: []
             }, p);
             let options = this.options;
-            if (!options.helper) {
-                options.helper = `
-
-                /** 定义helper */
-                var _helper = {
-                    /** 大驼峰转换：sip-user_list.component ===> SipUserListComponent */
-                    upperCamel(str) {
-                        return (str || '').replace(/\b(\w)|\s(\w)/g, function (m) { return m.toUpperCase(); }).replace(/[^a-z0-9]/gi, '');
-                    },
-                    /** 小驼峰转换：sip-user_list.component ===> sipUserListComponent */
-                    camel(str) {
-                        return _helper.upperCamel(str).replace(/^\w/, function (f) { return f.toLowerCase(); });
-                    }
-                };
-                
-                /** 扩展helper */
-                RenderHelper.extend(_helper);
-`
+            if (!environment.production) {
+                options.helper = environment.render.helper;
+                options.tmplIndex = environment.render.index;
             }
+
             options.modules = options.modules.slice();
-            
+
             let helper: any = {};
             if (options.helper) {
-                (new Function('RenderHelper', options.helper))({
+                let RenderHelper = {
+                    debug: false,
                     extend: function (obj: any) {
                         helper = obj;
                     },
                     log(...args: string[]) {
-                        return SipRenderFile.log(...args);
+                        return SipRenderFile.logOut(...args);
+                    },
+                    warning(...args: string[]) {
+                        return SipRenderFile.warningOut(...args);
+                    },
+                    error(...args: string[]) {
+                        return SipRenderFile.errorOut(...args);
                     }
-                });
+                };
+                (new Function('RenderHelper', options.helper))(RenderHelper);
+                SipRenderFile.debug = options.debug = RenderHelper.debug;
+                SipRenderFile.helper = helper;
             }
-            SipRenderFile.helper = helper;
-            
+
             let _extendField = ['curPath', 'curFile', 'isDir', 'input', 'isLinux', 'tmplName', 'workspaceRoot'];
             let renderExtend = SipRenderFile.extend;
             _extendField.forEach(function (key) {
                 renderExtend[key] = options[key];
             });
             callback();
-            // this.readConfig().subscribe((readConfig) => {
-            //     let config: IConfig = readConfig ? JSON.parse(readConfig) : null;
-            //     this.config = config;
-            //     if (config) {
-            //         options.prefix = config.prefix;
-            //     }
-
-            //     let helper: any = {};
-            //     if (options.helper) {
-            //         (new Function('RenderHelper', options.helper))({
-            //             extend: function (obj: any) {
-            //                 helper = obj;
-            //             },
-            //             log(...args: string[]) {
-            //                 return SipRenderFile.log(...args);
-            //             }
-            //         });
-            //     }
-            //     SipRenderFile.helper = helper;
-                
-            //     let _extendField = ['curPath', 'curFile', 'isDir', 'input', 'isLinux', 'tmplName', 'workspaceRoot'];
-            //     let renderExtend = SipRenderFile.extend;
-            //     _extendField.forEach(function (key) {
-            //         renderExtend[key] = options[key];
-            //     });
-            //     callback();
-
-            // });
         });
     }
 
@@ -165,8 +136,43 @@ export class VscodeMessageService {
         return this._sendMsg('saveFile', { basePath: basePath, file: file, content: content, flag: flag, dir: dir === true });
     }
 
+    /**
+     * 保存文件
+     * @param fullPath 文件名称（全路径，如：c:\demo\demo.ts）
+     * @param content 保存内容
+     * @param flag 'w'
+     * @example saveFile('name1111', 'test11112').subscribe()
+     */
+    saveFileEx(fullPath: string, content: string, flag?: 'w' | null, dir?: boolean): Observable<string> {
+        return this._sendMsg('saveFile', { fullPath: fullPath, content: content, flag: flag, dir: dir === true });
+    }
+
     readFile(file: string, basePath?: string): Observable<string> {
-        return this._sendMsg('readFile', { basePath: basePath, file: file });
+        return this._sendMsg('readFile', { basePath: basePath, file: file }).pipe(map(function (content) {
+            if (!environment.production) {
+                switch (file) {
+                    case 'templateFile':
+                        return environment.render.template;
+                    case 'templateExtend':
+                        return environment.render.script;
+                }
+            }
+            return content;
+        }));
+    }
+
+    readFileEx(fullPath: string): Observable<string> {
+        return this._sendMsg('readFile', { fullPath: fullPath }).pipe(map(function (content) {
+            if (!environment.production) {
+                switch (fullPath) {
+                    case 'templateFile':
+                        return environment.render.template;
+                    case 'templateExtend':
+                        return environment.render.script;
+                }
+            }
+            return content;
+        }));
     }
 
     openFile(file: string, basePath?: string): Observable<string> {

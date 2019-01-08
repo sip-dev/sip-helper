@@ -18,12 +18,12 @@ SipRender.templates([
 
 /**
  * 扩展 render template数据, 这里会在所有模板文件生效
- *  $template: template数据
+ *  $data: template数据
  *  $helper: 为render-helper.js定义内容
  * 
  */
-SipRender.extend(function ($template, $helper) {
+SipRender.extend(function ($data, $helper) {
 
-    $template.className = $helper.upperCamel($data.fileName);
+    $data.className = $helper.upperCamel($data.fileName);
 
 });
