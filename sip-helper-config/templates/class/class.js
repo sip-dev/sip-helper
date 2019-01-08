@@ -7,5 +7,5 @@
  * 
  */
 SipRender.extend(function ($data, $helper) {
-
+    $data.hello = "hello world";
 });

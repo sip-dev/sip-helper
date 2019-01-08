@@ -25,7 +25,10 @@ export class GenerateLogService {
         this.isLinux = options.isLinux;
         this.tmplPath = options.tmplPath;
 
-        this.warning('初始化');
+        SipRenderFile.logs.forEach((item) => {
+            this.genReports.push(item);
+        });
+
         let tmplIndex = this._vsMsg.options.tmplIndex;
         if (tmplIndex) {
             try {

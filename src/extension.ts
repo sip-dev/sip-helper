@@ -825,7 +825,7 @@ ${props.join('\n')}
                     panel.dispose();
                     break;
                 case 'openFile':
-                    _openFile(path.join(data.basePath || curPath, data.file));
+                    _openFile( data.fullPath ? data.fullPath : path.join(data.basePath || curPath, data.file));
                     break;
             }
             // console.log(cmd, data);

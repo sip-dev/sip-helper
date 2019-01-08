@@ -4,7 +4,7 @@
 
 ## render-helper.js
 
-- 定义 render 的 $helper 对象
+- 定义 render 的 $helper 对象，多个模板公共对象（可用于模板之间通讯）
 
 ## templates 目录
 

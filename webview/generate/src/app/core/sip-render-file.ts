@@ -86,7 +86,7 @@ export class SipRenderFile {
         return this.errorOut(...args);
     }
     /** renderFile后返回logs */
-    get logs(): LogItem[] {
+    static get logs(): LogItem[] {
         return _logs;
     }
 

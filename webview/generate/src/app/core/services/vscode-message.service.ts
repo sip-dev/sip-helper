@@ -94,7 +94,7 @@ export class VscodeMessageService {
                 let RenderHelper = {
                     debug: false,
                     extend: function (obj: any) {
-                        helper = obj;
+                        helper = obj;//保持原有对象，公共对像
                     },
                     log(...args: string[]) {
                         return SipRenderFile.logOut(...args);
@@ -106,9 +106,15 @@ export class VscodeMessageService {
                         return SipRenderFile.errorOut(...args);
                     }
                 };
-                (new Function('RenderHelper', options.helper))(RenderHelper);
-                SipRenderFile.debug = options.debug = RenderHelper.debug;
-                SipRenderFile.helper = helper;
+                try {
+                    (new Function('RenderHelper', options.helper))(RenderHelper);
+                    SipRenderFile.debug = options.debug = RenderHelper.debug;
+                    SipRenderFile.helper = helper;
+                    SipRenderFile.warning('RenderHelper');
+                    SipRenderFile.log(options.helper);
+                } catch (e) {
+                    SipRenderFile.error(`RenderHelper：${e.toString()}`);
+                }
             }
 
             let _extendField = ['curPath', 'curFile', 'isDir', 'input', 'isLinux', 'tmplName', 'workspaceRoot'];
@@ -116,6 +122,8 @@ export class VscodeMessageService {
             _extendField.forEach(function (key) {
                 renderExtend[key] = options[key];
             });
+            SipRenderFile.warningOut('传入参数');
+            SipRenderFile.logOut(JSON.stringify(renderExtend));
             callback();
         });
     }
@@ -177,6 +185,10 @@ export class VscodeMessageService {
 
     openFile(file: string, basePath?: string): Observable<string> {
         return this._sendMsg('openFile', { basePath: basePath, file: file });
+    }
+
+    openFileEx(fullPath: string): Observable<string> {
+        return this._sendMsg('openFile', { fullPath: fullPath });
     }
 
 

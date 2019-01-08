@@ -66,7 +66,8 @@ export const environment = {
     template: `
     class @{className} {
     
-    
+        hello = '@{hello}';
+
     }`,
     script: `/// <reference path="../../sip-helper.d.ts" />
 
@@ -77,7 +78,7 @@ export const environment = {
      * 
      */
     SipRender.extend(function ($data, $helper) {
-    
+        $data.hello = "hello world";
     });`,
   }
 };

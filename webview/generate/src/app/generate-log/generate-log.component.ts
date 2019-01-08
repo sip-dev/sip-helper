@@ -46,7 +46,7 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
 
   close() {
     if (this.genSrv.generateFirstFile) {
-      this._vsMsg.openFile(this.genSrv.generateFirstFile).subscribe();
+      this._vsMsg.openFileEx(this.genSrv.generateFirstFile).subscribe();
     }
     this._vsMsg.close();
   }
