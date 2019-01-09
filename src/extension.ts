@@ -584,7 +584,7 @@ ${props.join('\n')}
                     if (fullPath && (overWrite || !fs.existsSync(fullPath))) {
                         try {
                             if (data.dir) {
-                                mkdirSync(path.dirname(fullPath));
+                                mkdirSync(fullPath);
                                 receiveMsg(id, cmd, [retFile, '成功'].join(', '));
                             } else {
                                 let content: string = data.content;

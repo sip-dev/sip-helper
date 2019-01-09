@@ -137,7 +137,7 @@ export class SipRenderFile {
         }
 
         SipRenderFile.warning(`render template 内容：${template.templateFile}`);
-        let dir = data.pathType == 'dir';
+        let dir = template.isDir;
         let fullPath = data.path;
         let content = '';
         if (!dir) {
@@ -148,7 +148,7 @@ export class SipRenderFile {
         let ret: SipRenderOut = {
             fullPath: fullPath,
             content: content,
-            dir: template.isDir,
+            dir: dir,
             logs: _logs
         };
         SipRenderFile.log(`path：${ret.fullPath}`);
