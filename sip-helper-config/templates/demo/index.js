@@ -39,8 +39,8 @@ SipRender.templates([
         "fileName": "@{input}",
         "extend": "ts",
         "path": "@{curPath}",
-        "templateFile": "./class.tmpl",
-        "templateExtend": "./class.js"
+        "templateFile": "./demo.tmpl",
+        "templateExtend": "./demo.js"
     }
 ]);
 

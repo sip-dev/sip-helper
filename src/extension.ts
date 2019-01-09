@@ -608,7 +608,11 @@ ${props.join('\n')}
                     let readFile: string = data.fullPath ? data.fullPath : path.join(data.basePath || curPath, data.file);
                     let readContent: string = '';
                     if (readFile && fs.existsSync(readFile)) {
-                        readContent = fs.readFileSync(readFile, 'utf-8');
+                        try {
+                            readContent = fs.readFileSync(readFile, 'utf-8');
+                        } catch(e){
+
+                        }
                     }
                     receiveMsg(id, cmd, readContent);
                     break;
