@@ -80,16 +80,22 @@ export class GenerateLogService {
         let rxTemp = null;
         this.warning(`读取模板内容`);
         this.templates.forEach((item) => {
-            rxTemp = this._vsMsg.readFileEx(this.joinPath(item.templateExtend)).pipe(map((content) => {
-                this.log(`${item.templateExtend} 内容：${content}`);
-                item.script = content;
-            }));
-            loadList.push(rxTemp);
-            rxTemp = this._vsMsg.readFileEx(this.joinPath(item.templateFile)).pipe(map((content) => {
-                this.log(`${item.templateFile} 内容：${content}`);
-                item.content = content;
-            }));
-            loadList.push(rxTemp);
+            if (!!item.templateExtend) {
+                rxTemp = this._vsMsg.readFileEx(this.joinPath(item.templateExtend)).pipe(map((content) => {
+                    this.log(`${item.templateExtend} 内容：${content}`);
+                    item.script = content;
+                }));
+                loadList.push(rxTemp);
+            }
+            if (!!item.templateFile) {
+                rxTemp = this._vsMsg.readFileEx(this.joinPath(item.templateFile)).pipe(map((content) => {
+                    this.log(`${item.templateFile} 内容：${content}`);
+                    item.content = content;
+                }));
+                loadList.push(rxTemp);
+            } else {
+                this.error(`没有定义模板文件`);
+            }
         });
         return zip(...loadList);
     }
