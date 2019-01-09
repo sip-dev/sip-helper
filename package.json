@@ -3,7 +3,7 @@
   "displayName": "sip-helper",
   "description": "Run sip-helper from vscode commandline.",
   "icon": "images/logo.png",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "winpzs",
   "bugs": {
     "url": "https://github.com/sip-dev/sip-helper/issues",
