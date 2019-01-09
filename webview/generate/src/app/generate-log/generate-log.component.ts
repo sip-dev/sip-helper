@@ -24,7 +24,7 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
 
   keydown = (e) => {
     switch (e.keyCode) {
-      case 13:
+      // case 13:
       case 27:
         e.stopPropagation();
         e.preventDefault();
@@ -65,6 +65,7 @@ export class GenerateLogComponent implements OnInit, OnDestroy {
 
   isStart = false;
   start() {
+    if (this.isStart) return;
     this.isStart = true;
     this.genSrv.start();
   }
