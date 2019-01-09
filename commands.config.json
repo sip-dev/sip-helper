@@ -6,12 +6,17 @@
     },
     {
         "builtin": true,
+        "command": "sip-template",
+        "title": "Template >"
+    },
+    {
+        "builtin": true,
         "command": "npm",
         "title": "Npm >"
     },
     {
         "command": "",
-        "title": "Command >",
+        "title": "Other >",
         "children": [
             {
                 "builtin": true,

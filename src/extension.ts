@@ -98,31 +98,38 @@ export function activate(context: ExtensionContext) {
     function copyDir(fromDir, toDir) {
         if (!fs.existsSync(toDir)) mkdirSync(toDir);
         fs.readdirSync(fromDir).forEach(function (file) {
-          var pathname = path.join(fromDir, file);
-          var toPathname = path.join(toDir, file);
-       
-          if (fs.statSync(pathname).isDirectory()) {
-            copyDir(pathname, toDir);
-          } else {
-            fs.writeFileSync(pathname, fs.readdirSync(toPathname));
-          }
+            var fromPathname = path.join(fromDir, file);
+            var toPathname = path.join(toDir, file);
+
+            if (fs.statSync(fromPathname).isDirectory()) {
+                copyDir(fromPathname, toPathname);
+            } else {
+                fs.writeFileSync(toPathname, fs.readFileSync(fromPathname, 'utf8'), 'utf8');
+            }
         });
-      }
-      
-    let _initConfigPath = ()=>{
+    }
+
+    let _initConfigPath = () => {
         let fsPath = _getConfigPath();
-        if (!fs.existsSync(fsPath)){
+        if (!fs.existsSync(fsPath)) {
             let fromPath = path.join(context.extensionPath, _sipConfigPath);
             copyDir(fromPath, fsPath);
         }
-        
+
     };
 
     context.subscriptions.push(commands.registerCommand('siphelper.sipgenerate', (args) => {
+        _initConfigPath();
+
         _preDoneRegisterCommand(args);
         let picks = _getTemplates();
         window.showQuickPick(picks).then(tmpl => {
             if (!tmpl) return;
+            if (args && args.template){
+                let tmplPath = _getTemplateIndexPath(tmpl);
+                _openFile(tmplPath);
+                return;
+            }
             window.showInputBox({
                 prompt: '请输入文件名称/内容？',
                 value: _fileName
@@ -226,8 +233,11 @@ export function activate(context: ExtensionContext) {
                 commands.executeCommand('siphelper.region', args);
                 break;
             case 'sip-generate':
-                _initConfigPath();
                 commands.executeCommand('siphelper.sipgenerate', args);
+                break;
+            case 'sip-template':
+                _initConfigPath();
+                commands.executeCommand('siphelper.sipgenerate', Object.assign({ template: true }, args));
                 break;
         }
     };
@@ -500,6 +510,7 @@ ${props.join('\n')}
 
     function _preDoneRegisterCommand(args: any) {
         let curPath = _curFile = getCurrentPath(args), defaultName = path.basename(curPath);
+        _calcRootPath(curPath);
         _fileName = defaultName.split('.')[0];
         return curPath;
     }
