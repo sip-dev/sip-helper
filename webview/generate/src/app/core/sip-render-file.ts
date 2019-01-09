@@ -148,7 +148,7 @@ export class SipRenderFile {
         let ret: SipRenderOut = {
             fullPath: fullPath,
             content: content,
-            dir: data.pathType == 'dir',
+            dir: template.isDir,
             logs: _logs
         };
         SipRenderFile.log(`path：${ret.fullPath}`);

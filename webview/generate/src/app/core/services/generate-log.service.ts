@@ -108,7 +108,8 @@ export class GenerateLogService {
                 }));
                 loadList.push(rxTemp);
             } else {
-                this.error(`没有定义模板文件`);
+                if (!item.isDir)
+                    this.error(`没有定义模板文件 ${item.fileName}`);
             }
         });
         return zip(...loadList);
