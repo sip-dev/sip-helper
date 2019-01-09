@@ -28,8 +28,14 @@ function _makeTmplPropVar(data: any, form:any) {
 function _makeFormPropVar(data: any, forms: SipRenderFormItem[]) {
     let form = {};
     forms.forEach(function (item) {
-        let name = item.name;
-        form[name] = data[name] = _getVarIn(data, item.defaultValue, form);
+        if (item.isTemplate){
+            item.templates.forEach(function(tmpl){
+                form[tmpl.formName]  = tmpl.formValue;
+            });
+        } else {
+            let name = item.name;
+            form[name] = _getVarIn(data, item.defaultValue, form);
+        }
     });
     return form;
 }

@@ -18,6 +18,19 @@ export class GenerateLogService {
 
     onEnd: () => void;
 
+    private checkTemplateToForm() {
+        let formItem: SipRenderFormItem = {
+            name: '_template_191009',
+            isTemplate: true,
+            templates: []
+        }
+        formItem.templates = this.templates.filter(function (item) {
+            return !!item.formName;
+        });
+        if (formItem.templates.length > 0)
+            this.forms.unshift(formItem);
+    }
+
     constructor(private _vsMsg: VscodeMessageService) {
         let options = this._vsMsg.options;
         this.isLinux = options.isLinux;
@@ -37,7 +50,8 @@ export class GenerateLogService {
                         this.forms = forms;
                     },
                     templates: (templates) => {
-                        this.templates = templates;
+                        this.templates = templates || [];
+                        this.checkTemplateToForm();
                     },
                     extend: (fn) => {
                         this.extendFn = fn;
@@ -145,6 +159,9 @@ export class GenerateLogService {
         let input = this._vsMsg.input;
         let tmplName = this._vsMsg.options.tmplName;
         this.templates.forEach((template) => {
+            if (template.formName){
+                if (!template.formValue) return;
+            }
             this.warning(`render 文件：${template.templateExtend}`);
             let item = this.rd.renderTmpl(template, this.extendFn, tmplName, input, this.forms);
             item.logs.forEach((item) => {

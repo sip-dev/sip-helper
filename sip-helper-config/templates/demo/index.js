@@ -6,7 +6,7 @@ SipRender.forms([
         name: 'text1',
         title: 'text-title',
         uiType: 'input',
-        /** 只能使用 @{传入参数} 或 @{$form.name}(注意定义顺序) */
+        /** 只能使用 @{内置数据} 或 $form数据(注意定义顺序) */
         defaultValue: '@{input}-input',
         source: null,
         style: null,
@@ -40,7 +40,9 @@ SipRender.templates([
         "extend": "ts",
         "path": "@{curPath}",
         "templateFile": "./demo.tmpl",
-        "templateExtend": "./demo.js"
+        "templateExtend": "./demo.js",
+        "formName":"demo.tmpl",
+        "formValue": true
     }
 ]);
 

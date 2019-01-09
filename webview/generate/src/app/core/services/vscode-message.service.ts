@@ -114,7 +114,7 @@ export class VscodeMessageService {
             _extendField.forEach(function (key) {
                 renderExtend[key] = options[key];
             });
-            SipRenderFile.warningOut('传入参数');
+            SipRenderFile.warningOut('内置数据');
             SipRenderFile.logOut(JSON.stringify(renderExtend));
             callback();
         });
@@ -151,9 +151,9 @@ export class VscodeMessageService {
         return this._sendMsg('readFile', { basePath: basePath, file: file }).pipe(map(function (content) {
             if (!environment.production) {
                 switch (file) {
-                    case 'templateFile':
+                    case './demo.tmpl':
                         return environment.render.template;
-                    case 'templateExtend':
+                    case './demo.js':
                         return environment.render.script;
                 }
             }
@@ -164,12 +164,11 @@ export class VscodeMessageService {
     readFileEx(fullPath: string): Observable<string> {
         return this._sendMsg('readFile', { fullPath: fullPath }).pipe(map(function (content) {
             if (!environment.production) {
-                switch (fullPath) {
-                    case 'templateFile':
-                        return environment.render.template;
-                    case 'templateExtend':
-                        return environment.render.script;
-                }
+                if (fullPath.indexOf('.tmpl') >= 0)
+                    return environment.render.template;
+                else if (fullPath.indexOf('.js') >= 0)
+                    return environment.render.script;
+
             }
             return content;
         }));

@@ -28,7 +28,7 @@ interface SipRenderFormItem {
     name: string;
     /** 显示标题 */
     title?: string;
-    /** 默认值, 可以使用render，只能使用 @{传入参数} 或 @{$form.name}(注意定义顺序)*/
+    /** 默认值, 可以使用render，只能使用 @{内置数据} 或 $form数据(注意定义顺序)*/
     defaultValue?: any;
     /** 描述 */
     desc?: string;
@@ -54,6 +54,10 @@ interface SipRenderTemplateItem {
     "templateFile": string;
     /** 模板扩展位置 */
     "templateExtend": string;
+    /** 在$form里的名称，留空不处理 */
+    "formName"?:string;
+    /** 在$form里的初始值 */
+    "formValue"?:boolean;
 }
 
 /** $data 内置数据 */

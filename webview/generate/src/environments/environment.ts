@@ -42,7 +42,7 @@ export const environment = {
             name: 'text1',
             title: 'text-title',
             uiType: 'input',
-            /** 只能使用 @{传入参数} 或 @{$form.name}(注意定义顺序) */
+            /** 只能使用 @{内置数据} 或 @{$form.name}(注意定义顺序) */
             defaultValue: '@{input}-input',
             source: null,
             style: null,
@@ -75,8 +75,10 @@ export const environment = {
             "fileName": "@{input}",
             "extend": "ts",
             "path": "@{curPath}",
-            "templateFile": "templateFile",
-            "templateExtend": "templateExtend"
+            "templateFile": "./demo.tmpl",
+            "templateExtend": "./demo.js",
+            "formName":"demo.tmpl",
+            "formValue": true
         }
     ]);
     
@@ -99,7 +101,8 @@ export const environment = {
         form = {
             text:'@{$form.text1}',
             select:'@{$form.select1}',
-            textarea:'@{$form.textarea1}'
+            textarea:'@{$form.textarea1}',
+            aaa:'@{$form['demo.tmpl']}'
         };
     
     }`,
