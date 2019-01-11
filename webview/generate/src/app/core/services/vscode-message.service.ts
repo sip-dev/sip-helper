@@ -88,6 +88,9 @@ export class VscodeMessageService {
                     extend: function (obj: any) {
                         helper = obj;//保持原有对象，公共对像
                     },
+                    render:(template: string, data?: any) => {
+                        return SipRenderFile.render(data || {}, template);
+                    },
                     log(...args: string[]) {
                         return SipRenderFile.logOut(...args);
                     },

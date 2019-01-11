@@ -553,7 +553,7 @@ ${props.join('\n')}
             let id = message.id;
             switch (cmd) {
                 case 'options':
-                    let input = isDir ? fileName : fileName.split('.')[0];
+                    let input = generateOpt ? path.basename(generateOpt.input) : '';//isDir ? fileName : fileName.split('.')[0];
                     let tmplName = generateOpt ? generateOpt.tmpl : '';
                     let tmplPath = tmplName ? _getTemplatePath(tmplName) : '';
                     let indexContent = tmplName ? fs.readFileSync(_getTemplateIndexPath(tmplName), 'utf-8') : '';

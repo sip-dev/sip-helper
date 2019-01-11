@@ -60,7 +60,7 @@ export class SipRenderFile {
         return _logs;
     }
 
-    static render(data: any, template: string, form:any): string{
+    static render(data: any, template: string, form?:any): string{
         return _getVarIn(data, template, form);
     }
 
@@ -68,51 +68,11 @@ export class SipRenderFile {
         _logs = [];
 
 
-        // let data = Object.assign({}, SipRenderFile.extend, _getTmplPropVar(template));
-        // data.tmplName = tmplName;
-        // data.input = input;
-        // let form = _makeFormPropVar(data, forms);
-        // _makeTmplPropVar(data, form);
-        // SipRenderFile.warning('SipRender.extend');
-        // if (scriptContext) {
-        //     try {
-        //         SipRenderFile.log('SipRender.extend：index.js');
-        //         scriptContext(data, SipRenderFile.helper, form);
-        //     } catch (e) {
-        //         _logs.push({ text: e.toString(), style: LogStyle.error });
-        //     }
-        // }
-        // if (template.script) {
-        //     try {
-        //         SipRenderFile.log(`SipRender.extend：${template.templateExtend}`);
-        //         (new Function('SipRender', template.script))({
-        //             forms: (forms) => {
-        //             },
-        //             templates: (templates) => {
-        //             },
-        //             extend: (fn) => {
-        //                 fn(data, SipRenderFile.helper, form);
-        //             },
-        //             log(...args: string[]) {
-        //                 return SipRenderFile.logOut(...args);
-        //             },
-        //             warning(...args: string[]) {
-        //                 return SipRenderFile.warningOut(...args);
-        //             },
-        //             error(...args: string[]) {
-        //                 return SipRenderFile.errorOut(...args);
-        //             }
-        //         });
-        //     } catch (e) {
-        //         _logs.push({ text: e.toString(), style: LogStyle.error });
-        //     }
-        // }
         let isLinux = SipRenderFile.extend.isLinux;
 
         let data = extentContext.data;
         let form = extentContext.form;
 
-        // SipRenderFile.warning(`render template 内容：${template.templateFile}`);
         let dir = template.isDir;
         let fullPath = data.path;
         let content = '';

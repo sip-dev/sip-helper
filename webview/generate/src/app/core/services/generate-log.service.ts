@@ -18,7 +18,7 @@ function _getTmplPropVar(data: any) {
     });
     return newData
 }
-function _makeTmplPropVar(data: any, form: any, template:any) {
+function _makeTmplPropVar(data: any, form: any, template: any) {
     _tmplProps.forEach(function (item) {
         template[item] = data[item] = SipRenderFile.render(data, template[item], form);
     });
@@ -85,14 +85,17 @@ export class GenerateLogService {
                 this.log(tmplIndex);
                 (new Function('SipRender', tmplIndex))({
                     forms: (forms) => {
-                        this.forms = forms;
+                        this.forms = forms || [];
                     },
                     templates: (templates) => {
                         this.templates = templates || [];
                         this.checkTemplateToForm();
                     },
                     script: (fn) => {
-                        this.extend.context = fn(this.extend.data, this.extend.helper, this.extend.form) || {};
+                        this.extend.context = (fn && fn(this.extend.data, this.extend.helper, this.extend.form)) || {};
+                    },
+                    render:(template: string, data?: any) => {
+                        return SipRenderFile.render(Object.assign({}, this.extend.data, data), template, this.extend.form);
                     },
                     log(...args: string[]) {
                         return SipRenderFile.logOut(...args);
@@ -104,12 +107,12 @@ export class GenerateLogService {
                         return SipRenderFile.errorOut(...args);
                     }
                 });
-                let input = this._vsMsg.input;
-                let tmplName = this._vsMsg.options.tmplName;
-                Object.assign(this.extend.data, {
-                    input: input,
-                    tmplName: tmplName
-                });
+                // let input = this._vsMsg.input;
+                // let tmplName = this._vsMsg.options.tmplName;
+                // Object.assign(this.extend.data, {
+                //     input: input,
+                //     tmplName: tmplName
+                // });
                 this.extend.context.beforeForms && this.extend.context.beforeForms(this.forms);
             } catch (e) {
                 this.error(e.toString());

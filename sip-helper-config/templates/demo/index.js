@@ -58,9 +58,9 @@ SipRender.script(function ($data, $helper, $form) {
         },
         afterForms(forms) {
         },
-        beforeTemplate(tempaltes){
+        beforeTemplate(tempaltes) {
         },
-        afterTemplate(tempaltes){
+        afterTemplate(tempaltes) {
         },
         render(tempalte, index) {
             $data.className = $helper.upperCamel($data.fileName);

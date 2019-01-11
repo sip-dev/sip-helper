@@ -4,7 +4,7 @@
 
 ## render-helper.js
 
-- 定义 render 的 $helper 对象，多个模板公共对象（可用于模板之间通讯）
+- 定义 render 的 $helper 对象
 - 目前不支持 require
 
 ## templates 目录
@@ -15,7 +15,7 @@
 
 -  SipRender.forms 有生成时 UI form 收集 $input 内容
 - SipRender.templates 定义生成模板
-- SipRender.extend 扩展 $data 内容
+- SipRender.script 使用script扩展 $data 内容
 
 ## 模板语法
 

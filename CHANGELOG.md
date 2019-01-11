@@ -1,5 +1,9 @@
 ## sip-helper Changelog
 
+# 1.0.3
+
+* 修改 SipRender.extend 为 SipRender.script
+
 # 1.0.2
 
 * 修正不能创建目录
