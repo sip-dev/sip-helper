@@ -45,6 +45,19 @@ export interface SipRenderFormItem {
     templates?: SipRenderTemplateItem[];
 }
 
+export interface SipRenderScriptContext {
+    /** form 处理之前，$form为空数据 */
+    beforeForms?:(forms:SipRenderFormItem[])=>void;
+    /** form 处理之后，$form数据已经处理好 */
+    afterForms?:(forms:SipRenderFormItem[])=>void;
+    /** 模板配置 处理之前，可以根据$form数据前端处理template */
+    beforeTemplate?:(templates:SipRenderTemplateItem[])=>void;
+    /** 模板配置 处理之后 */
+    afterTemplate?:(templates:SipRenderTemplateItem[])=>void;
+    /** 最后做准备，处理$data，每个模板文件处理一次 */
+    render?:(template:SipRenderTemplateItem, index:number)=>void;
+}
+
 export interface SipRenderTemplateItem {
     /** 是否目录 */
     "isDir": boolean;
@@ -56,15 +69,18 @@ export interface SipRenderTemplateItem {
     "path": string;
     /** 模板位置 */
     "templateFile": string;
-    /** 模板扩展位置 */
-    "templateExtend": string;
-    content?: string;
-    script?: string;
+    /** 模板 */
+    "template": string;
     /** 在$form里的名称，留空不处理 */
     "formName"?: string;
     /** 在$form里的初始值, 只能 '1' | '0' */
     "formValue"?: boolean;
 }
+
+export interface SipRenderExtendContext {
+    context:SipRenderScriptContext;
+    data:any; helper:any;form:any;
+ };
 
 export interface SipRenderOut {
     fullPath: string;

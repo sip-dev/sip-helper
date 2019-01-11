@@ -150,12 +150,8 @@ export class VscodeMessageService {
     readFile(file: string, basePath?: string): Observable<string> {
         return this._sendMsg('readFile', { basePath: basePath, file: file }).pipe(map(function (content) {
             if (!environment.production) {
-                switch (file) {
-                    case './demo.tmpl':
-                        return environment.render.template;
-                    case './demo.js':
-                        return environment.render.script;
-                }
+                if (file.indexOf('.tmpl') >= 0)
+                    return environment.render.template;
             }
             return content;
         }));
@@ -166,9 +162,6 @@ export class VscodeMessageService {
             if (!environment.production) {
                 if (fullPath.indexOf('.tmpl') >= 0)
                     return environment.render.template;
-                else if (fullPath.indexOf('.js') >= 0)
-                    return environment.render.script;
-
             }
             return content;
         }));

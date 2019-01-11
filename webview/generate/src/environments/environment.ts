@@ -42,7 +42,7 @@ export const environment = {
             name: 'text1',
             title: 'text-title',
             uiType: 'input',
-            /** 只能使用 @{内置数据} 或 @{$form.name}(注意定义顺序) */
+            /** 只能使用 @{内置数据} 或 $form数据(注意定义顺序) */
             defaultValue: '@{input}-input',
             source: null,
             style: null,
@@ -67,7 +67,7 @@ export const environment = {
             desc: ''
         }
     ]);
-            
+    
     /** 定义 render 模板 */
     SipRender.templates([
         {
@@ -76,21 +76,33 @@ export const environment = {
             "extend": "ts",
             "path": "@{curPath}",
             "templateFile": "./demo.tmpl",
-            "templateExtend": "./demo.js",
-            "formName":"demo.tmpl",
+            "formName": "demo.tmpl",
             "formValue": true
         }
     ]);
     
     /**
-     * 扩展 render template数据, 这里会在所有模板文件生效
+     * 脚本
      *  $data: template数据
      *  $helper: 为render-helper.js定义内容
-     *  $form：为UI输入内容，object
+     *  $form：为UI输入后内容，object
      */
-    SipRender.extend(function ($data, $helper, $form) {
+    SipRender.script(function ($data, $helper, $form) {
     
-        $data.className = $helper.upperCamel($data.fileName);
+        return {
+            beforeForms(forms) {
+            },
+            afterForms(forms) {
+            },
+            beforeTemplate(tempaltes){
+            },
+            afterTemplate(tempaltes){
+            },
+            render(tempalte, index) {
+                $data.className = $helper.upperCamel($data.fileName);
+                $data.hello = "hello world" + ' - ' + $form.text1;
+            }
+        };
     
     });`,
     template: `
@@ -105,18 +117,7 @@ export const environment = {
             aaa:'@{$form['demo.tmpl']}'
         };
     
-    }`,
-    script: `/// <reference path="../../sip-helper.d.ts" />
-
-    /**
-     * 扩展 render template数据，这里只在本模板文件生效
-     *  $data: template数据
-     *  $helper: 为render-helper.js定义内容
-     *  $form：为UI输入内容，object
-     */
-    SipRender.extend(function ($data, $helper, $form) {
-        $data.hello = "hello world" + ' - ' + $form.text1;
-    });`,
+    }`
   }
 };
 

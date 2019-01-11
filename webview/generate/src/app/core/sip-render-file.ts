@@ -1,4 +1,4 @@
-import { LogItem, LogStyle, SipRenderFormItem, SipRenderOut, SipRenderTemplateItem } from './base';
+import { LogItem, LogStyle, SipRenderExtendContext, SipRenderOut, SipRenderTemplateItem } from './base';
 import { JoinPath } from "./lib";
 import { SipRender } from "./sip-render";
 
@@ -8,37 +8,6 @@ function _getVarIn(data: any, template: string, form:any): string {
     return SipRender.render(template, data, SipRenderFile.helper, form);
 }
 
-/** template支持render内容的属性，注意顺序 */
-const _tmplProps = [
-    'input',
-    'fileName', 'extend', 'path'
-];
-function _getTmplPropVar(data: any) {
-    let newData = {};
-    _tmplProps.forEach(function (item) {
-        newData[item] = data[item];
-    });
-    return newData
-}
-function _makeTmplPropVar(data: any, form:any) {
-    _tmplProps.forEach(function (item) {
-        data[item] = _getVarIn(data, data[item], form);
-    });
-}
-function _makeFormPropVar(data: any, forms: SipRenderFormItem[]) {
-    let form = {};
-    forms.forEach(function (item) {
-        if (item.isTemplate){
-            item.templates.forEach(function(tmpl){
-                form[tmpl.formName]  = tmpl.formValue;
-            });
-        } else {
-            let name = item.name;
-            form[name] = _getVarIn(data, item.defaultValue, form);
-        }
-    });
-    return form;
-}
 let _logs: LogItem[] = [];
 
 export class SipRenderFile {
@@ -91,59 +60,66 @@ export class SipRenderFile {
         return _logs;
     }
 
-    renderTmpl(template: SipRenderTemplateItem, extendFn: (data: any, helper: any, form:any) => void, tmplName: string, input: string, forms:SipRenderFormItem[]): SipRenderOut {
+    static render(data: any, template: string, form:any): string{
+        return _getVarIn(data, template, form);
+    }
+
+    renderTmpl(template: SipRenderTemplateItem, extentContext: SipRenderExtendContext): SipRenderOut {
         _logs = [];
 
+
+        // let data = Object.assign({}, SipRenderFile.extend, _getTmplPropVar(template));
+        // data.tmplName = tmplName;
+        // data.input = input;
+        // let form = _makeFormPropVar(data, forms);
+        // _makeTmplPropVar(data, form);
+        // SipRenderFile.warning('SipRender.extend');
+        // if (scriptContext) {
+        //     try {
+        //         SipRenderFile.log('SipRender.extend：index.js');
+        //         scriptContext(data, SipRenderFile.helper, form);
+        //     } catch (e) {
+        //         _logs.push({ text: e.toString(), style: LogStyle.error });
+        //     }
+        // }
+        // if (template.script) {
+        //     try {
+        //         SipRenderFile.log(`SipRender.extend：${template.templateExtend}`);
+        //         (new Function('SipRender', template.script))({
+        //             forms: (forms) => {
+        //             },
+        //             templates: (templates) => {
+        //             },
+        //             extend: (fn) => {
+        //                 fn(data, SipRenderFile.helper, form);
+        //             },
+        //             log(...args: string[]) {
+        //                 return SipRenderFile.logOut(...args);
+        //             },
+        //             warning(...args: string[]) {
+        //                 return SipRenderFile.warningOut(...args);
+        //             },
+        //             error(...args: string[]) {
+        //                 return SipRenderFile.errorOut(...args);
+        //             }
+        //         });
+        //     } catch (e) {
+        //         _logs.push({ text: e.toString(), style: LogStyle.error });
+        //     }
+        // }
         let isLinux = SipRenderFile.extend.isLinux;
 
-        let data = Object.assign({}, SipRenderFile.extend, _getTmplPropVar(template));
-        data.tmplName = tmplName;
-        data.input = input;
-        let form = _makeFormPropVar(data, forms);
-        _makeTmplPropVar(data, form);
-        SipRenderFile.warning('SipRender.extend');
-        if (extendFn) {
-            try {
-                SipRenderFile.log('SipRender.extend：index.js');
-                extendFn(data, SipRenderFile.helper, form);
-            } catch (e) {
-                _logs.push({ text: e.toString(), style: LogStyle.error });
-            }
-        }
-        if (template.script) {
-            try {
-                SipRenderFile.log(`SipRender.extend：${template.templateExtend}`);
-                (new Function('SipRender', template.script))({
-                    forms: (forms) => {
-                    },
-                    templates: (templates) => {
-                    },
-                    extend: (fn) => {
-                        fn(data, SipRenderFile.helper, form);
-                    },
-                    log(...args: string[]) {
-                        return SipRenderFile.logOut(...args);
-                    },
-                    warning(...args: string[]) {
-                        return SipRenderFile.warningOut(...args);
-                    },
-                    error(...args: string[]) {
-                        return SipRenderFile.errorOut(...args);
-                    }
-                });
-            } catch (e) {
-                _logs.push({ text: e.toString(), style: LogStyle.error });
-            }
-        }
+        let data = extentContext.data;
+        let form = extentContext.form;
 
-        SipRenderFile.warning(`render template 内容：${template.templateFile}`);
+        // SipRenderFile.warning(`render template 内容：${template.templateFile}`);
         let dir = template.isDir;
         let fullPath = data.path;
         let content = '';
         if (!dir) {
             fullPath = JoinPath(fullPath, data.fileName, isLinux);
             if (data.extend) fullPath = [fullPath, data.extend].join('.');
-            content = _getVarIn(data, template.content, form);
+            content = _getVarIn(data, template.template, form);
         }
         let ret: SipRenderOut = {
             fullPath: fullPath,

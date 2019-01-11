@@ -52,8 +52,8 @@ interface SipRenderTemplateItem {
     "path": string;
     /** 模板位置 */
     "templateFile": string;
-    /** 模板扩展位置 */
-    "templateExtend": string;
+    /** 模板 */
+    "template": string;
     /** 在$form里的名称，留空不处理 */
     "formName"?:string;
     /** 在$form里的初始值 */
@@ -85,6 +85,18 @@ interface SipRenderExtendData {
     [key: string]: any;
 }
 
+export interface SipRenderScriptContext {
+    /** form 处理之前，$form为空数据 */
+    beforeForms?:(forms:SipRenderFormItem[])=>void;
+    /** form 处理之后，$form数据已经处理好 */
+    afterForms?:(forms:SipRenderFormItem[])=>void;
+    /** 模板配置 处理之前，可以根据$form数据前端处理template */
+    beforeTemplate?:(templates:SipRenderTemplateItem[])=>void;
+    /** 模板配置 处理之后 */
+    afterTemplate?:(templates:SipRenderTemplateItem[])=>void;
+    /** 最后做准备，处理$data，每个模板文件处理一次 */
+    render?:(template:SipRenderTemplateItem, index:number)=>void;
+}
 interface ISipRender {
     /**
      * 设置生成时UI输入
@@ -95,9 +107,12 @@ interface ISipRender {
      */
     templates: (templates: SipRenderTemplateItem[]) => void;
     /**
-     * 扩展 $data
+     * 脚本
+     *  $data: template数据
+     *  $helper: 为render-helper.js定义内容
+     *  $form：为UI输入后内容，object
      */
-    extend: (extend: ($data: SipRenderExtendData, $helper: any, $form: any) => void) => void;
+    script: (extend: ($data: SipRenderExtendData, $helper: any, $form: any) => SipRenderScriptContext) => void;
     /**
      * log信息
      */
