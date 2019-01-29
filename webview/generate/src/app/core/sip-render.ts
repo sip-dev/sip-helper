@@ -1,22 +1,24 @@
 
 
 interface OutItem {
-    type: 'root' | 'text' | 'for' | 'if' | 'else' | 'item';
+    type: 'root' | 'text' | 'for' | 'await' | 'if' | 'else' | 'item';
     content?: string;
     parent?: OutItem;
     elseItem?: OutItem;
     children?: OutItem[];
 }
 
-let _chectRegex = /(\$|\`|\\)/g;
+let _chectRegex = /([$`\\'"])/g;
 function _checkTemplate(template) {
     _chectRegex.lastIndex = 0;
-    return template.replace(_chectRegex, '\\$1');
+    return template.replace(_chectRegex, '\\$1').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
 }
 
 let _itemRegex = /\@\{(.*?)\}/mgi;
 let _forRegex = /^\s*\bfor\b(.*?)$/i;
 let _forEndRegex = /^\s*\/\bfor\b\s*$/i;
+let _awaitRegex = /^\s*\bawait\b(.*?)$/i;
+let _awaitEndRegex = /^\s*\/\bawait\b\s*$/i;
 let _ifRegex = /^\s*\bif\b(.*?)$/i;
 let _elseRegex = /^\s*\belse\b(.*?)$/i;
 let _ifEndRegex = /^\s*\/\bif\b\s*$/i;
@@ -40,7 +42,7 @@ function _translate(template: string): OutItem {
             content: beforeText
         });
 
-        if (_forEndRegex.test(content) || _ifEndRegex.test(content)) {
+        if (_forEndRegex.test(content) || _ifEndRegex.test(content) || _awaitEndRegex.test(content)) {
             if (parent.parent) parent = parent.parent;
             return;
         }
@@ -75,6 +77,20 @@ function _translate(template: string): OutItem {
             parent = forItem;
             return '';
         }
+
+        let awaitExec = _awaitRegex.exec(content);
+        if (awaitExec) {
+            let awaitItem: OutItem = {
+                type: 'await',
+                parent: parent,
+                content: awaitExec[1],
+                children: []
+            };
+            parent.children.push(awaitItem);
+            parent = awaitItem;
+            return '';
+        }
+
         let ifExec = _ifRegex.exec(content);
         if (ifExec) {
             let ifItem: OutItem = {
@@ -143,9 +159,9 @@ function _makeElseItem(item: OutItem): string {
     return ['(', content, ') ? (', ifStr, ') : (', elseStr, ')'].join('');
 }
 
-let _makeForItemRegex = /^\s*(\S+)\s+in\s+(\S+)\s*$/i;
+let _makeFormItemRegex = /^\s*(\S+)\s+in\s+(\S+)\s*$/i;
 function _makeForItem(item: OutItem): string {
-    let content = _makeForItemRegex.exec(item.content);
+    let content = _makeFormItemRegex.exec(item.content);
     if (!content) return '""';
 
     let outs = [];
@@ -155,15 +171,25 @@ function _makeForItem(item: OutItem): string {
     let itemName = content[1];
     let listName = content[2];
 
-    let forContent = `(function () {
-    if (!${listName} || ${listName}.length == 0) return '';
-    var _s_i_for_outs_ = [];
-    for (var i = 0, len = ${listName}.length; i < len; i++) {
-        var ${itemName}_index = i, ${itemName} = ${listName}[i];
-        _s_i_for_outs_.push(${str});
-    }
-    return _s_i_for_outs_.join('');
-})()`;
+    let forContent = ["_s_i_eachFn_190129(", listName, ", function(", itemName, ", ", itemName, "_index){return ", str, ";}).join('')"].join('');
+    return forContent;
+}
+
+let _makeAwaitItemRegex = /^\s*(\S+)\s+then\s+(\S+)\s*$/i;
+function _makeAwaitItem(item: OutItem): string {
+    let content = _makeAwaitItemRegex.exec(item.content);
+    if (!content) return '""';
+
+    let outs = [];
+    _compileChildren(item, item.children, outs);
+    let str = _makeComileString(outs);
+
+    let itemName = content[1];
+    let listName = content[2];
+
+    let forContent = `_s_i_eachFn_190129(${listName}, function(${itemName}, ${itemName}_index){
+        return ${str};
+    }).join('')`;
     return forContent;
 }
 
@@ -188,7 +214,7 @@ function _compileItem(item: OutItem, outs: string[]) {
     item.parent = null;//断开连接
 }
 
-type Buildtor = ($data: any, $helper?: any, $form?:any) => string;
+type Buildtor = ($data: any, $helper?: any, $form?: any) => string;
 
 function _compile(template: string): Buildtor {
     let outs: string[] = [];
@@ -197,6 +223,14 @@ function _compile(template: string): Buildtor {
     let fn
     try {
         fn = new Function('$data', '$helper', '$form', `var _s_i_mainFn_190104 = function($data, $helper){
+            var _s_i_eachFn_190129 = function(list, callback) {
+                if (!list || list.length == 0) return [];
+                var rets = [];
+                for (var i = 0, len = list.length; i < len; i++) {
+                    rets.push(callback(list[i], i));
+                }
+                return rets;
+            };
             with($data){
                 return ${_makeComileString(outs)};
             }
@@ -232,7 +266,8 @@ export const SipRender = {
     hasRender: function (template: string): boolean {
         _itemRegex.lastIndex = 0;
         return _itemRegex.test(template);
-    }
+    },
+    cacheSize: 200
 }
 
 interface CacheItem {
@@ -241,7 +276,6 @@ interface CacheItem {
     buildtor: Buildtor;
 }
 
-let _cacheMax = 200;
 let _caches: CacheItem[] = [];
 
 function _setCache(template: string, buildtor: Buildtor) {
@@ -250,7 +284,7 @@ function _setCache(template: string, buildtor: Buildtor) {
         template: template,
         buildtor: buildtor
     });
-    if (_caches.length > _cacheMax) {
+    if (_caches.length > SipRender.cacheSize) {
         _caches.sort(function (item1, item2) { return item1.time == item2.time ? 0 : (item1.time < item2.time ? 1 : -1) });
         _caches.splice(-20);
         // _caches = _caches.slice(20);
@@ -263,3 +297,18 @@ function _getCache(template: string): CacheItem {
         cache.time = new Date().valueOf();
     return cache;
 }
+
+
+// let template = `@{if a}
+// saaaaa  \` ' " \n
+//  @{for item in list} for1111-@{item}-\\@{item_index}\\ @{/for}
+//  @{else}
+//     a false
+//  @{/if}`;
+
+// console.log(_compile(template).toString());
+
+// console.log(SipRender.render(template, {
+//     a: true,
+//     list: ['list1', 'list2']
+// }));
